@@ -68,9 +68,6 @@
           ansible_user: "{{ ssh_user }}"
         loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db') | list }}"
 
-
-
-
       - name: waiting for tower_ui_haproxy servers to come back
         local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
         become: false
@@ -91,9 +88,6 @@
         become: false
         loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db') | list }}"
 
-
-
-
     rescue:
       - name: Terraform destroy the install
         terraform:
@@ -105,3 +99,10 @@
         file:
           path: "{{ base_directory }}"
           state: absent
+
+- name: Run the ansible playbook to provision instances
+  hosts: all
+  become: true
+
+  roles:
+    - role: provision
