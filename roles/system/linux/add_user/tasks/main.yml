@@ -1,0 +1,33 @@
+---
+
+- name: Fail if required user_name is not given
+  fail:
+    msg: user_name env variable are required for this role.
+  when: user_name is not defined
+
+- name: "Add {{ user_name }} system user"
+  user:
+    name: "{{ user_name }}"
+    state: present
+  when: user_home is not defined
+
+- name: "Add {{ user_name }} system ssh key"
+  user:
+    name: "{{ user_name }}"
+    state: present
+    generate_ssh_key: yes
+    home: "{{ user_home }}"
+  when: user_home is defined
+
+- name: "Update {{ user_name }} user groups"
+  user:
+    name: "{{ user_name }}"
+    groups: "{{ user_name }},{{ user_groups }}"
+  when: user_groups is defined
+
+- name: "Copy the sudoer file for {{ user_name }}"
+  template:
+    src: sudoer.j2
+    dest: "/etc/sudoers.d/{{ user_name }}"
+    mode: 0440
+  when: add_sudo is defined

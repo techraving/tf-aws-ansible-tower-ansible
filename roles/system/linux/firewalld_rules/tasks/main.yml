@@ -1,0 +1,25 @@
+---
+# yamllint disable rule:line-length
+
+- name: Check if firewalld rpm is already installed
+  yum:
+    list: firewalld
+  register: yum_list
+
+- name: Add firewalld rules
+  firewalld:
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+  with_items: "{{ rules }}"
+  ignore_errors: true
+  when: (yum_list.results | selectattr("yumstate", "match", "installed") | list | length == 0) and (state is not defined or state == "present")
+
+- name: Remove firewalld rules
+  firewalld:
+    port: "{{ item }}"
+    permanent: false
+    state: absent
+  with_items: "{{ rules }}"
+  ignore_errors: true
+  when: (yum_list.results | selectattr("yumstate", "match", "installed") | list | length == 0) and (state is defined and state == "absent")

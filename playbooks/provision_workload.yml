@@ -1,0 +1,107 @@
+---
+
+- name: Download the terraform configuration files
+  hosts: localhost
+  connection: local
+  vars:
+    repository_url: https://github.com/techraving/tf-aws-ansible-tower.git
+    base_directory: /tmp/terraform
+    version: master
+    ssh_user: centos
+
+  tasks:
+  - name: Create the destination base_directory
+    file:
+      path: "{{ base_directory }}"
+      state: directory 
+
+  - name: Download the terraform config from git
+    git:
+      repo: "{{ repository_url }}"
+      dest: "{{ base_directory }}"
+      version: "{{ version }}"
+      
+  - name: Run the Terraform plans
+    block:
+      - name: Run the templates for provisioning a virtual machine
+        terraform:
+          project_path: "{{ base_directory }}"
+          state: present
+          force_init: true
+          variables_file: "{{ base_directory }}/aws_vars.tfvars"
+
+      - name: Get status from Terraform
+        command: terraform show -json
+        register: terraform_result
+        args:
+          chdir: "{{ base_directory }}"
+
+      - name: Add to consul node groups
+        add_host:
+          hostname: "{{ item }}"
+          groups: 
+            - tower_ui_haparoxy
+          ansible_user: "{{ ssh_user }}"
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui_haparoxy') | list }}"
+
+      - name: Add to vault node groups
+        add_host:
+          hostname: "{{ item }}"
+          groups: 
+            - tower_ui
+          ansible_user: "{{ ssh_user }}"
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui') | list }}"
+
+      - name: Add to haproxy node groups
+        add_host:
+          hostname: "{{ item }}"
+          groups: 
+            - tower_db_haparoxy
+          ansible_user: "{{ ssh_user }}"
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db_haparoxy') | list }}"
+
+      - name: Add to haproxy node groups
+        add_host:
+          hostname: "{{ item }}"
+          groups: 
+            - tower_db
+          ansible_user: "{{ ssh_user }}"
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db') | list }}"
+
+
+
+
+      - name: waiting for tower_ui_haparoxy servers to come back
+        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+        become: false
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui_haparoxy') | list }}"
+
+      - name: waiting for tower_ui servers to come back
+        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+        become: false
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui') | list }}"
+
+      - name: waiting for tower_db_haparoxy servers to come back
+        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+        become: false
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db_haparoxy') | list }}"
+
+      - name: waiting for tower_db servers to come back
+        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+        become: false
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db') | list }}"
+
+
+
+
+    rescue:
+      - name: Terraform destroy the install
+        terraform:
+          project_path: "{{ base_directory }}"
+          state: absent
+          variables_file: "{{ base_directory }}/aws_vars.tfvars"
+
+      - name: Delete the terraform destination base_directory
+        file:
+          path: "{{ base_directory }}"
+          state: absent
