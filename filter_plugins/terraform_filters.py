@@ -51,6 +51,13 @@ class FilterModule(object):
                 for k,v in resource['values']['tags'].items():
                     if k == "Role" and v == type:
                         data.append(resource['values']['private_ip'])
+        for child in jsonObj['values']['root_module']['child_modules']:
+            for resource in child['resources']:
+                if resource['type'] == 'aws_instance':
+                    for k,v in resource['values']['tags'].items():
+                        if k == "Role" and v == type:
+                            data.append(resource['values']['private_ip'])
+        return data
 
     def get_group_instances(self, jsonStr, type):
         data = []
@@ -60,6 +67,12 @@ class FilterModule(object):
                 for k,v in resource['values']['tags'].items():
                     if k == "Group" and v == type:
                         data.append(resource['values']['private_ip'])
+        for child in jsonObj['values']['root_module']['child_modules']:
+            for resource in child['resources']:
+                if resource['type'] == 'aws_instance':
+                    for k,v in resource['values']['tags'].items():
+                        if k == "Group" and v == type:
+                            data.append(resource['values']['private_ip'])
         return data
 
     def get_instance_name_by_private_ip(self, jsonStr, private_ip):
