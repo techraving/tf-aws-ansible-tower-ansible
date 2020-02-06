@@ -10,25 +10,25 @@
     ssh_user: centos
 
   tasks:
-  - name: Create the destination base_directory
-    file:
-      path: "{{ base_directory }}"
-      state: directory 
+  # - name: Create the destination base_directory
+  #   file:
+  #     path: "{{ base_directory }}"
+  #     state: directory 
 
-  - name: Download the terraform config from git
-    git:
-      repo: "{{ repository_url }}"
-      dest: "{{ base_directory }}"
-      version: "{{ version }}"
+  # - name: Download the terraform config from git
+  #   git:
+  #     repo: "{{ repository_url }}"
+  #     dest: "{{ base_directory }}"
+  #     version: "{{ version }}"
       
   - name: Run the Terraform plans
     block:
-      - name: Run the templates for provisioning a virtual machine
-        terraform:
-          project_path: "{{ base_directory }}"
-          state: present
-          force_init: true
-          variables_file: "{{ base_directory }}/aws_vars.tfvars"
+      # - name: Run the templates for provisioning a virtual machine
+      #   terraform:
+      #     project_path: "{{ base_directory }}"
+      #     state: present
+      #     force_init: true
+      #     variables_file: "{{ base_directory }}/aws_vars.tfvars"
 
       - name: Get status from Terraform
         command: terraform show -json
@@ -52,7 +52,7 @@
           ansible_user: "{{ ssh_user }}"
         loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui') | list }}"
 
-      - name: Add to tower_db_haparoxy node groups
+      - name: Add to tower_db_haproxy node groups
         add_host:
           hostname: "{{ item }}"
           groups: 
@@ -66,7 +66,15 @@
           groups: 
             - tower_db
           ansible_user: "{{ ssh_user }}"
-        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db') | list }}"
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db') | list[0] }}"
+
+      - name: Add to tower_db_replicas node groups
+        add_host:
+          hostname: "{{ item }}"
+          groups: 
+            - tower_db_replicas
+          ansible_user: "{{ ssh_user }}"
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db') | list[1:] }}"
 
       - name: waiting for tower_ui_haproxy servers to come back
         local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
@@ -88,6 +96,11 @@
         become: false
         loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db') | list }}"
 
+      - name: waiting for tower_db_replicas servers to come back
+        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+        become: false
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db_replicas') | list }}"
+
     rescue:
       - name: Terraform destroy the install
         terraform:
@@ -100,9 +113,70 @@
           path: "{{ base_directory }}"
           state: absent
 
-- name: Run the ansible playbook to provision instances
-  hosts: all
-  become: true
+# - name: Run the ansible playbook to provision instances
+#   hosts: all
+#   become: true
 
-  roles:
-    - role: provision
+#   roles:
+#     - role: provision
+
+# - name: Install Postgresql Databases
+#   hosts: tower_db, tower_db_replicas
+#   become: true
+
+#   roles:
+#     - role: "postgres_install"
+
+# - name: Replicate Postgresql Databases
+#   hosts: tower_db, tower_db_replicas
+#   become: true
+
+#   roles:
+#     - role: "postgres_replication"
+#       when: groups['tower_db_replicas']|length > 0
+
+# - name: Replicate Postgresql HAProxy
+#   hosts: tower_db_haproxy
+#   become: true
+
+#   roles:
+#     - role: "postgres_haproxy"
+
+# - name: Prepare UI Servers
+#   hosts: tower_ui
+#   become: true
+
+#   roles:
+#     - role: "prepare_servers"
+
+# - name: Install Ansible Tower
+#   hosts: tower_ui[0]
+#   become: true
+
+#   roles:
+#     - role: "tower_install"
+
+# - name: Install Load Balancer for Ansible Tower UI
+#   hosts: tower_ui_haproxy
+#   become: true
+
+#   roles:
+#     - role: "tower_haproxy"
+#       vars:
+#         lb_groups_key: 'tower_ui'
+
+# - name: Update ui servers to point to Postgresl Load Balancer
+#   hosts: tower_ui
+#   become: true
+
+#   tasks:
+#     - name: Update the postgres.py
+#       lineinfile:
+#         path: /etc/tower/conf.d/postgres.py
+#         regexp: "'HOST': '{{ groups['tower_db'][0] }}',"
+#         line: "'HOST': '{{ groups['tower_db_haproxy'][0] }}',"
+#       when: groups['tower_db_haproxy']|length > 0
+
+#     - name: Restart tower
+#       command: ansible-tower-service restart
+#       when: groups['tower_db_haproxy']|length > 0
