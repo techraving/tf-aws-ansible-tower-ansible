@@ -1,0 +1,47 @@
+---
+
+- name: Check for Firewalld
+  command: rpm -q firewalld
+  changed_when: no
+  failed_when: no
+  register: firewalld_check
+
+- name: add ports to firewalld
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+  when: 
+    - firewalld_check.stdout.find('package firewalld is not installed') == -1
+
+- name: add ports to firewalld
+  firewalld:
+    service: https
+    permanent: yes
+    state: enabled
+  when: 
+    - firewalld_check.stdout.find('package firewalld is not installed') == -1
+
+- name: Install HaProxy
+  yum:
+    name: haproxy
+    state: present
+
+- name: Make sure haproxy started and enabled
+  service:
+    name: haproxy
+    state: started
+    enabled: true
+
+- name: Set selinux
+  command: setsebool -P haproxy_connect_any=1
+
+- name: Copy the haproxy.cfg file
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+
+- name: restart haproxy with new config
+  service:
+    name: haproxy
+    state: restarted

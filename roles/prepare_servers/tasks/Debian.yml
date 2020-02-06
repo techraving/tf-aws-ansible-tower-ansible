@@ -1,0 +1,19 @@
+---
+
+- name: Install software-properties-common ans ansible apt-key on Ubuntu
+  command: 'apt-get install -y software-properties-common && apt-add-repository -y ppa:ansible/ansible && apt-get update -y' # noqa 303
+  changed_when: false
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install Ansible package
+  apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  register: result
+  retries: 10
+  delay: 60
+  until: result is succeeded
+  vars:
+    packages:
+      - ansible

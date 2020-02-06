@@ -1,0 +1,27 @@
+---
+ansibletower:
+  no_log: false
+  root: "/usr/src"
+  version: "{{ ansible_tower_version|default('3.5.1-1') }}"
+  postgresql:
+    host: "{{ postgresql_host|default('') }}"
+    port: "{{ postgresql_port|default('5432') }}"
+    database: "{{ postgresql_database|default('tower') }}"
+    username: "{{ postgresql_username|default('awx') }}"
+  rabbitmq:
+    host: "{{ rabbitmq_host|default('tower') }}"
+    port: "{{ rabbitmq_port|default('5672') }}"
+    vhost: tower
+    username: "{{ rabbitmq_username|default('tower') }}"
+    cookie: "{{ rabbitmq_cookie|default('smartvm') }}"
+    enable_manager: "{{ rabbitmq_enable_manager|default(true) }}"
+    long_name: "{{ rabbitmq_use_long_name|default(true) }}"
+  credentials:
+    admin: "{{ admin_password|default('smartvm') }}"
+    rabbitmq: "{{ rabbitmq_password|default('smartvm')}}"
+    postgresql: "{{ postgresql_password|default('smartvm') }}"
+
+pg_major_version: 9.6-3
+pg_version: 9.6
+pg_tag: 96
+pg_rpm_url: "https://download.postgresql.org/pub/repos/yum/{{ pg_version }}/redhat/rhel-latest-x86_64/pgdg-centos{{ pg_tag }}-{{ pg_major_version }}.noarch.rpm"

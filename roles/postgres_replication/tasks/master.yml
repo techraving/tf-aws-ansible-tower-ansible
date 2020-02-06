@@ -1,0 +1,6 @@
+---
+- name: register primary
+  shell: repmgr primary register
+  become: yes
+  become_user: postgres
+  ignore_errors: true

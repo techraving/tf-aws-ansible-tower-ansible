@@ -1,0 +1,31 @@
+[tower]
+{% for host in groups['ui'] %}
+{{ host }}
+{% endfor %}
+
+[database]
+{% for host in groups['database'] %}
+{{ host }}
+{% endfor %}
+
+[all:vars]
+admin_password='{{ ansibletower.credentials.admin }}'
+ansible_become=true
+
+pg_host='{{ groups['database'][0] | default() }}'
+pg_port='{{ ansibletower.postgresql.port }}'
+
+pg_database='{{ ansibletower.postgresql.database }}'
+pg_username='{{ ansibletower.postgresql.username }}'
+pg_password='{{ ansibletower.credentials.postgresql }}'
+
+rabbitmq_port='{{ ansibletower.rabbitmq.port }}'
+rabbitmq_vhost=tower
+rabbitmq_username={{ ansibletower.rabbitmq.username }}
+rabbitmq_password='{{ ansibletower.credentials.rabbitmq }}'
+rabbitmq_cookie={{ ansibletower.rabbitmq.cookie }}
+rabbitmq_enable_manager={{ ansibletower.rabbitmq.enable_manager }}
+
+# Needs to be true for fqdns and ip addresses
+rabbitmq_use_long_name={{ ansibletower.rabbitmq.long_name }}
+# Needs to remain false if you are using localhost

@@ -1,0 +1,40 @@
+---
+
+- name: stop postgresql
+  service:
+    name: postgresql-{{ postgresql_version }}
+    state: stopped
+
+- name: make temp directory for config files
+  command: mkdir /var/lib/pgsql/9.6/files
+  ignore_errors: true
+  become: yes
+  become_user: postgres
+
+- name: move the conf files to temp file
+  shell: cp /var/lib/pgsql/9.6/data/*.conf /var/lib/pgsql/9.6/files/
+  become: yes
+  become_user: postgres
+
+- name: Delete the data directory files
+  command: rm -rf /var/lib/pgsql/9.6/data/*
+
+- name: move config files from backup
+  shell: cp /var/lib/pgsql/9.6/files/* /var/lib/pgsql/9.6/data/
+  become: yes
+  become_user: postgres
+
+- name: clone the data directory
+  command: "repmgr -h {{ groups['database'][0] }} -U repmgr -d repmgr standby clone --force"
+  become: yes
+  become_user: postgres
+
+- name: restart postgresql
+  service:
+    name: postgresql-{{ postgresql_version }}
+    state: started
+
+- name: start the replication stream
+  command: "repmgr -h {{ groups['database'][0] }} -U repmgr -d repmgr standby register"
+  become: yes
+  become_user: postgres

@@ -1,0 +1,92 @@
+---
+
+ 
+postgresql_version: 9.6
+
+pgsqlrep_role: skip
+postgresql_data_path: "/var/lib/pgsql/{{postgresql_version }}/data"
+pgsqlrep_data_path: "{{ postgresql_data_path }}"
+pgsqlrep_repmgr_user: repmgr
+pgsqlrep_wal_level: hot_standby
+pgsqlrep_max_wal_senders: "{{ groups[pgsqlrep_group_name] | length * 2 }}"
+pgsqlrep_wal_keep_segments: 5000
+pgsqlrep_synchronous_commit: local
+pgsqlrep_hot_standby: 'on'
+pgsqlrep_archive_mode: 'on'
+pgsqlrep_archive_command: '/bin/true'
+pgsqlrep_shared_preload_libraries: repmgr
+pgsqlrep_listen_addresses: '*'
+pgsqlrep_application_name: "{{ postgresql_database|default('tower') }}"
+pgsqlrep_master_port: "{{ postgresql_port|default(5432) }}"
+bundle_install: no
+
+pgsqlrep_group_name: database_replica
+pgsqlrep_group_name_master: database
+
+pgsqlrep_master_address: "{{ hostvars[groups[pgsqlrep_group_name_master][0]].ansible_default_ipv4.address }}"
+pgsqlrep_replica_address: "{{ groups[pgsqlrep_group_name] | map('extract', hostvars, 'ansible_default_ipv4') | map(attribute='address') | list }}"
+
+pgsqlrep_postgres_conf_lines:
+  - regexp: '#?wal_level = \w+(\s+#.*)'
+    line: 'wal_level = {{ pgsqlrep_wal_level }}\1'
+
+  - regexp: '#?max_wal_senders = \d+(\s+#.*)'
+    line: 'max_wal_senders = {{ pgsqlrep_max_wal_senders }}\1'
+
+  - regexp: '#?wal_keep_segments = .*(\s+#.*)'
+    line: 'wal_keep_segments = {{ pgsqlrep_wal_keep_segments }}\1'
+
+  - regexp: '#?synchronous_standby_names = .*'
+    line: "synchronous_standby_names = '{{ pgsqlrep_application_name }}'"
+
+  - regexp: '#?synchronous_commit = \w+(\s+#.*)'
+    line: 'synchronous_commit = {{ pgsqlrep_synchronous_commit }}\1'
+
+  - regexp: '#?hot_standby = \w+(\s+#.*)'
+    line: 'hot_standby = {{ pgsqlrep_hot_standby }}\1'
+
+  - regexp: '#?archive_mode = \w+(\s+#.*)'
+    line: 'archive_mode = {{ pgsqlrep_archive_mode }}\1'
+
+  - regexp: '#?archive_command = .*(\s+#.*)'
+    line: 'archive_command = ''{{ pgsqlrep_archive_command }}''\1'
+
+  - regexp: '#?shared_preload_libraries = .*(\s+#.*)'
+    line: 'shared_preload_libraries = ''{{ pgsqlrep_shared_preload_libraries }}''\1'
+
+  - regexp: '#?listen_addresses = \w+(\s+#.*)'
+    line: 'listen_addresses = ''{{ pgsqlrep_listen_addresses }}''\1'
+
+pgsqlrep_repmgr_conf_lines:
+  - regexp: '#?node_id=.*(\s+#.*)'
+    line: 'node_id={{ ( inventory_hostname | hash | list | map("int", 16) | sum ) }}\1'
+
+  - regexp: '#?node_name=.*(\s+#.*)'
+    line: 'node_name=''{{ inventory_hostname }}''\1'
+
+  - regexp: '#?conninfo=.*(\s+#.*)'
+    line: 'conninfo=''host={{ inventory_hostname }} user=repmgr dbname=repmgr connect_timeout=2''\1'
+
+  - regexp: '#?failover=.*'
+    line: "failover='automatic'"
+
+  - regexp: '#?promote_command=.*(\s+#.*)'
+    line: 'promote_command=''repmgr standby promote -f /etc/repmgr/9.6/repmgr.conf --log-to-file''\1'
+
+  - regexp: '#?follow_command=.*(\s+#.*)'
+    line: 'follow_command=''repmgr standby follow -f /etc/repmgr/9.6/repmgr.conf --log-to-file''\1'
+
+  - regexp: '#?log_file=.*(\s+#.*)'
+    line: 'log_file=''/var/log/repmgr/repmgr.log''\1'
+
+  - regexp: '#?log_level=\w+(\s+#.*)'
+    line: 'log_level=NOTICE\1'
+
+  - regexp: '#?reconnect_attempts=\w+(\s+#.*)'
+    line: 'reconnect_attempts=4\1'
+
+  - regexp: '#?reconnect_interval=\w+(\s+#.*)'
+    line: 'reconnect_interval=5\1'
+
+  - regexp: '#?data_directory=.*(\s+#.*)'
+    line: 'data_directory=''{{ pgsqlrep_data_path }}''\1'

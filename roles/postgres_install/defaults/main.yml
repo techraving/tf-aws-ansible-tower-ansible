@@ -1,0 +1,14 @@
+---
+postgresql_version: 9.6
+postgresql_rpm_url: "https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-redhat96-9.6-3.noarch.rpm"
+postgresql_port: 5432
+postgresql_username: 'awx'
+postgresql_password: 'smartvm'
+postgresql_database: 'tower'
+postgresql_data_path: "/var/lib/pgsql/{{ postgresql_version }}/data"
+
+postgresql_packages:
+  - "postgresql{{ postgresql_version_no_dots }}"
+  - "postgresql{{ postgresql_version_no_dots }}-server"
+  - "postgresql{{ postgresql_version_no_dots }}-contrib"
+  - "postgresql{{ postgresql_version_no_dots }}-libs"

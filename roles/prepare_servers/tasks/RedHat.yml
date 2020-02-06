@@ -1,0 +1,29 @@
+---
+
+- name: Install EPEL
+  yum:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+- name: Update Kernel
+  yum:
+    name: kernel 
+    state: latest
+  register: kernel_updated
+
+- name: Update packages
+  yum:
+    name: '*'
+    state: latest
+  register: packages_updated
+
+- name: Install ansible
+  yum:
+    name: "{{ packages }}"
+    state: present
+  register: result
+  retries: 10
+  delay: 60
+  until: result is succeeded
+  vars:
+    packages:
+      - ansible

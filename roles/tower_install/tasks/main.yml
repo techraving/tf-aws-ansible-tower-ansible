@@ -1,0 +1,30 @@
+---
+
+- name: Download tower
+  get_url:
+    url: "http://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-{{ ansibletower.version }}.tar.gz"
+    dest: "/tmp/ansible-tower-setup-{{ ansibletower.version }}.tar.gz"
+
+- name: Uncompress Ansible Tower
+  unarchive:
+    src: "/tmp/ansible-tower-setup-{{ ansibletower.version }}.tar.gz"
+    dest: "{{ ansibletower.root }}"
+    remote_src: yes
+    creates: "{{ ansibletower.root }}/ansible-tower-setup-{{ ansibletower.version }}/setup.sh"
+
+- name: Remove the tar file
+  file:
+    path: "/tmp/ansible-tower-setup-{{ ansibletower.version }}.tar.gz"
+    state: absent
+
+- name: Configure credentials
+  template:
+    src: "inventory.j2"
+    dest: "{{ ansibletower.root }}/ansible-tower-setup-{{ ansibletower.version }}/inventory"
+  no_log: "{{ ansibletower.no_log }}"
+
+- name: Execute upgrade/installation
+  command: "./setup.sh"
+  changed_when: false
+  args:
+    chdir: "{{ ansibletower.root }}/ansible-tower-setup-{{ ansibletower.version }}"

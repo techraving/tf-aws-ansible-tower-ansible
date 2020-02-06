@@ -1,0 +1,10 @@
+---
+
+- name: Include OS sepcific tasks
+  include_tasks: "{{ ansible_os_family }}.yml"
+
+- name: Disable Host Key Checking
+  lineinfile:
+    path: /etc/ansible/ansible.cfg
+    regex: "^#host_key_checking"
+    line: "host_key_checking=false"

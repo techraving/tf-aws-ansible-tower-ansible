@@ -1,0 +1,139 @@
+---
+
+- name: Update firewalld
+  firewalld:
+    port: "{{ postgresql_port|default(5432) }}/tcp"
+    permanent: yes
+    state: enabled
+
+- name: Define var postgresql_version_no_dots. e.g. if 9.6 >> 96
+  set_fact:
+    postgresql_version_no_dots: "{{ postgresql_version | regex_replace('\\.') }}"
+
+- name: Install the postgres repos
+  yum:
+    name: "{{ postgresql_rpm_url }}"
+    state: present
+
+- name: Install postgres package rpms
+  yum:
+    name:
+      "{{ postgresql_packages }}"
+    state: present
+
+- name: Check if postgres has been initialized
+  stat:
+    path: "/var/lib/pgsql/{{ postgresql_version }}/initdb.log"
+  register: postgres_initialized
+
+- name: Initialize postgres
+  command: "/usr/pgsql-{{ postgresql_version }}/bin/postgresql{{ postgresql_version_no_dots }}-setup initdb"
+  when: not postgres_initialized.stat.exists
+
+- name: Update the sym link to pg_ctl
+  command: ln -s /usr/pgsql-9.6/bin/pg_ctl /usr/bin/pg_ctl
+  changed_when: false
+  ignore_errors: true
+
+- name: copy pg_hba.conf so user/pass authentication works in postgres
+  template:
+    src: pg_hba.conf.j2
+    dest: "{{ postgresql_data_path }}/pg_hba.conf"
+    owner: postgres
+    group: postgres
+    mode: 0600
+
+- name: Update the listen_addresses
+  lineinfile:
+    path: /var/lib/pgsql/9.6/data/postgresql.conf
+    regex: "^#listen_addresses = 'localhost'"
+    insertafter: '^#listen_addresses'
+    line: "listen_addresses = '*'"
+
+- name: Update the port to listen on
+  lineinfile:
+    path: "{{ postgresql_data_path }}/postgresql.conf"
+    regex: "^#port = 5432"
+    insertafter: '^#port = 5432'
+    line: "port = {{ postgresql_port|default(5432) }}"
+  when:
+    - postgresql_port is defined
+    - postgresql_port != 5432
+
+- name: Start and enable the postgres service
+  service:
+    name: "postgresql-{{ postgresql_version }}"
+    state: restarted
+    enabled: yes
+
+- name: Install python-psycopg2 required for the ansible postgres modules
+  yum:
+    name: python-psycopg2
+    state: installed
+
+- name: Create the tower db
+  postgresql_db:
+    name: "{{ postgresql_database }}"
+    encoding: UTF-8
+    template: template0
+  become: true
+  become_user: postgres
+
+- name: Create the tower user
+  postgresql_user:
+    db: "{{ postgresql_database }}"
+    name: "{{ postgresql_username }}"
+    password: "{{ postgresql_password }}"
+    priv: ALL
+  become: true
+  become_user: postgres
+
+- name: Create the haproxy user
+  postgresql_user:
+    db: postgres
+    name: haproxy
+    password: haproxy_password
+    priv: ALL
+  become: true
+  become_user: postgres
+  when:
+    - groups['lb_databases']|length > 0
+
+- name: Install xinetd
+  yum:
+    name: xinetd
+    state: present
+  when:
+    - groups['lb_databases']|length > 0
+
+- name: Copy the postgreschk script
+  template:
+    src:  postgreschk.j2
+    dest: /usr/local/sbin/postgreschk
+    mode: 0655
+  when:
+    - groups['lb_databases']|length > 0
+
+- name: Install the postgreschk service
+  copy:
+    src: postgreschk
+    dest: /etc/xinetd.d/postgreschk
+    mode: 0644
+  when:
+    - groups['lb_databases']|length > 0
+
+- name: Add the /etc/services line entry
+  lineinfile:
+    path: /etc/services
+    regexp: 'postgreschk        9201/tcp'
+    line: 'postgreschk        9201/tcp'
+  when:
+    - groups['lb_databases']|length > 0
+
+- name: Start the xinetd service
+  service:
+    name: xinetd
+    state: restarted
+    enabled: true
+  when:
+    - groups['lb_databases']|length > 0
