@@ -62,7 +62,7 @@
 
       - name: Add to tower_db node groups
         add_host:
-          hostname: "{{ terraform_result['stdout'] | get_group_instances('tower_db')[0] | list }}"
+          hostname: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[0] }}"
           groups: 
             - tower_db
           ansible_user: "{{ ssh_user }}"
