@@ -89,7 +89,7 @@ host    all             all             ::1/128                 md5
 local   postgres        postgres                                trust
 #host    replication     postgres        127.0.0.1/32            ident
 #host    replication     postgres        ::1/128                 ident
-{% if groups['lb_databases']|length > 0 %}
+{% if groups['tower_db_haproxy']|length > 0 %}
 host    postgres     	haproxy        	127.0.0.1/32            trust
 host    postgres     	haproxy        	::1/128                 trust
 {% endif %}

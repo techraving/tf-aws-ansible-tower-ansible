@@ -90,7 +90,7 @@ local   postgres        postgres                                trust
 local   repmgr          repmgr                                  trust
 host    postgres     	haproxy        	127.0.0.1/32            trust
 host    postgres     	haproxy        	::1/128                 trust
-{% for item in groups['database'] + groups['database_replica'] %}
+{% for item in groups['tower_db'] + groups['tower_db_replicas'] %}
 host    repmgr          {{ pgsqlrep_repmgr_user }}          {{ item }}/32     	trust
 host    replication     {{ pgsqlrep_repmgr_user }}          {{ item }}/32     	trust
 {% endfor %}

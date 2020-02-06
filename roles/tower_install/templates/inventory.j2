@@ -1,10 +1,10 @@
 [tower]
-{% for host in groups['ui'] %}
+{% for host in groups['tower_ui'] %}
 {{ host }}
 {% endfor %}
 
 [database]
-{% for host in groups['database'] %}
+{% for host in groups['tower_db'] %}
 {{ host }}
 {% endfor %}
 
@@ -12,7 +12,7 @@
 admin_password='{{ ansibletower.credentials.admin }}'
 ansible_become=true
 
-pg_host='{{ groups['database'][0] | default() }}'
+pg_host='{{ groups['tower_db'][0] | default() }}'
 pg_port='{{ ansibletower.postgresql.port }}'
 
 pg_database='{{ ansibletower.postgresql.database }}'

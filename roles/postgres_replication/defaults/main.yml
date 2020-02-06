@@ -20,7 +20,7 @@ pgsqlrep_application_name: "{{ postgresql_database|default('tower') }}"
 pgsqlrep_master_port: "{{ postgresql_port|default(5432) }}"
 bundle_install: no
 
-pgsqlrep_group_name: database_replica
+pgsqlrep_group_name: tower_db_replicas
 pgsqlrep_group_name_master: database
 
 pgsqlrep_master_address: "{{ hostvars[groups[pgsqlrep_group_name_master][0]].ansible_default_ipv4.address }}"

@@ -25,7 +25,7 @@
   become_user: postgres
 
 - name: clone the data directory
-  command: "repmgr -h {{ groups['database'][0] }} -U repmgr -d repmgr standby clone --force"
+  command: "repmgr -h {{ groups['tower_db'][0] }} -U repmgr -d repmgr standby clone --force"
   become: yes
   become_user: postgres
 
@@ -35,6 +35,6 @@
     state: started
 
 - name: start the replication stream
-  command: "repmgr -h {{ groups['database'][0] }} -U repmgr -d repmgr standby register"
+  command: "repmgr -h {{ groups['tower_db'][0] }} -U repmgr -d repmgr standby register"
   become: yes
   become_user: postgres
