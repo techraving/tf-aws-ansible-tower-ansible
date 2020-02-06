@@ -66,7 +66,7 @@
           groups: 
             - tower_db
           ansible_user: "{{ ssh_user }}"
-        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db') | list[0] }}"
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db')[0] | list }}"
 
       - name: Add to tower_db_replicas node groups
         add_host:
@@ -74,7 +74,7 @@
           groups: 
             - tower_db_replicas
           ansible_user: "{{ ssh_user }}"
-        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db') | list[1:] }}"
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db')[1:] | list }}"
 
       - name: waiting for tower_ui_haproxy servers to come back
         local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
