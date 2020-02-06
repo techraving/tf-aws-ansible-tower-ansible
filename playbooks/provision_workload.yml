@@ -102,6 +102,8 @@
         loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db_replicas') | list }}"
 
     rescue:
+      - debug:
+          msg: test
       # - name: Terraform destroy the install
       #   terraform:
       #     project_path: "{{ base_directory }}"
