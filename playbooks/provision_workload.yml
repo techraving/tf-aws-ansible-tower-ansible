@@ -145,12 +145,12 @@
 
   tasks:
     - name: Deploy id_rsa files
-      command: "scp /root/.ssh/id_rsa root@{{ item }}:/root/.ssh/id_rsa"
+      command: "scp -i /root/.ssh/ansible.pem /root/.ssh/id_rsa root@{{ item }}:/root/.ssh/id_rsa"
       changed_when: false
       with_items: "{{ groups['tower_ui'] }}"
 
     - name: Deploy id_rsa.pub files
-      command: "scp /root/.ssh/id_rsa.pub root@{{ item }}:/root/.ssh/id_rsa.pub"
+      command: "scp -i /root/.ssh/ansible.pem  /root/.ssh/id_rsa.pub root@{{ item }}:/root/.ssh/id_rsa.pub"
       changed_when: false
       with_items: "{{ groups['tower_ui'] }}"
 
