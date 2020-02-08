@@ -42,6 +42,9 @@
           groups: 
             - tower_ui_haproxy
           ansible_user: "{{ ssh_user }}"
+          ports:
+            - 80
+            - 443
         loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui_haproxy') | list }}"
 
       - name: Add to tower_ui node groups
@@ -58,6 +61,8 @@
           groups: 
             - tower_db_haproxy
           ansible_user: "{{ ssh_user }}"
+          ports:
+            - 5432
         loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db_haproxy') | list }}"
 
       - name: Add to tower_db node groups
