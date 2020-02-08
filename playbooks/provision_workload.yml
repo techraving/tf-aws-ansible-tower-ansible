@@ -140,23 +140,19 @@
       #     state: absent
 
 - name: Deploy .ssh files
-  hosts: all
-  become: true
+  hosts: localhost
+  connection: local
 
   tasks:
     - name: Deploy id_rsa files
-      command: "scp /root/.ssh/id_rsa root@{{ inventory_hostname }}:/root/.ssh/id_rsa"
+      command: "scp /root/.ssh/id_rsa root@{{ item }}:/root/.ssh/id_rsa"
       changed_when: false
-      delegate_to: localhost
-      become_user: root
-      become: true
+      with_tems: "{{ groups['tower_ui'] }}"
 
     - name: Deploy id_rsa.pub files
-      command: "scp /root/.ssh/id_rsa.pub root@{{ inventory_hostname }}:/root/.ssh/id_rsa.pub"
+      command: "scp /root/.ssh/id_rsa.pub root@{{ item }}:/root/.ssh/id_rsa.pub"
       changed_when: false
-      delegate_to: localhost
-      become_user: root
-      become: true
+      with_tems: "{{ groups['tower_ui'] }}"
 
 # - name: Run the ansible playbook to provision instances
 #   hosts: all
