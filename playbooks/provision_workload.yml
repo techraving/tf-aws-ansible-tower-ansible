@@ -154,6 +154,11 @@
       changed_when: false
       with_items: "{{ groups['tower_ui'] }}"
 
+    - name: Deploy id_rsa files
+      command: "scp -i /root/.ssh/ansible.pem /root/.ssh/ansible.pem root@{{ item }}:/root/.ssh/ansible.pem"
+      changed_when: false
+      with_items: "{{ groups['tower_ui'] }}"
+
 # - name: Run the ansible playbook to provision instances
 #   hosts: all
 #   become: true
