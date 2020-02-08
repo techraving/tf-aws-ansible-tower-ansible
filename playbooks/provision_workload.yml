@@ -148,11 +148,13 @@
       command: "scp /root/.ssh/id_rsa root@{{ inventory_hostname }}:/root/.ssh/id_rsa"
       changed_when: false
       delegate_to: localhost
+      become_user: root
 
     - name: Deploy id_rsa.pub files
       command: "scp /root/.ssh/id_rsa.pub root@{{ inventory_hostname }}:/root/.ssh/id_rsa.pub"
       changed_when: false
       delegate_to: localhost
+      become_usser: root
 
 # - name: Run the ansible playbook to provision instances
 #   hosts: all
