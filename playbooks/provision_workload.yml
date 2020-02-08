@@ -7,7 +7,7 @@
     repository_url: https://github.com/techraving/tf-aws-ansible-tower.git
     base_directory: /tmp/terraform
     version: master
-    ssh_user: centos
+    ssh_user: root
 
   tasks:
   # - name: Create the destination base_directory
