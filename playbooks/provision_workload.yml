@@ -142,26 +142,26 @@
 #     - role: "postgres_replication"
 #       when: groups['tower_db_replicas']|length > 0
 
-- name: Replicate Postgresql HAProxy
-  hosts: tower_db_haproxy
-  become: true
-
-  roles:
-    - role: "postgres_haproxy"
-
-- name: Prepare UI Servers
-  hosts: tower_ui
-  become: true
-
-  roles:
-    - role: "prepare_servers"
-
-# - name: Install Ansible Tower
-#   hosts: tower_ui[0]
+# - name: Replicate Postgresql HAProxy
+#   hosts: tower_db_haproxy
 #   become: true
 
 #   roles:
-#     - role: "tower_install"
+#     - role: "postgres_haproxy"
+
+# - name: Prepare UI Servers
+#   hosts: tower_ui
+#   become: true
+
+#   roles:
+#     - role: "prepare_servers"
+
+- name: Install Ansible Tower
+  hosts: tower_ui[0]
+  become: true
+
+  roles:
+    - role: "tower_install"
 
 # - name: Install Load Balancer for Ansible Tower UI
 #   hosts: tower_ui_haproxy
