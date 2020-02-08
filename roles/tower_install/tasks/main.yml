@@ -26,5 +26,6 @@
 - name: Execute upgrade/installation
   command: "./setup.sh"
   changed_when: false
+  become_user: root
   args:
     chdir: "{{ ansibletower.root }}/ansible-tower-setup-{{ ansibletower.version }}"
