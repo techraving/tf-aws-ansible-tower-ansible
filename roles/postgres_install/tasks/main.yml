@@ -1,75 +1,80 @@
 ---
 
-- name: Update firewalld
-  firewalld:
-    port: "{{ postgresql_port|default(5432) }}/tcp"
-    permanent: yes
-    state: enabled
+# - name: Update firewalld
+#   firewalld:
+#     port: "{{ postgresql_port|default(5432) }}/tcp"
+#     permanent: yes
+#     state: enabled
 
-- name: Define var postgresql_version_no_dots. e.g. if 9.6 >> 96
-  set_fact:
-    postgresql_version_no_dots: "{{ postgresql_version | regex_replace('\\.') }}"
+# - name: Define var postgresql_version_no_dots. e.g. if 9.6 >> 96
+#   set_fact:
+#     postgresql_version_no_dots: "{{ postgresql_version | regex_replace('\\.') }}"
 
-- name: Install the postgres repos
-  yum:
-    name: "{{ postgresql_rpm_url }}"
-    state: present
+# - name: Install the postgres repos
+#   yum:
+#     name: "{{ postgresql_rpm_url }}"
+#     state: present
 
-- name: Install postgres package rpms
-  yum:
-    name:
-      "{{ postgresql_packages }}"
-    state: present
+# - name: Install postgres package rpms
+#   yum:
+#     name:
+#       "{{ postgresql_packages }}"
+#     state: present
 
-- name: Check if postgres has been initialized
-  stat:
-    path: "/var/lib/pgsql/{{ postgresql_version }}/initdb.log"
-  register: postgres_initialized
+# - name: Check if postgres has been initialized
+#   stat:
+#     path: "/var/lib/pgsql/{{ postgresql_version }}/initdb.log"
+#   register: postgres_initialized
 
-- name: Initialize postgres
-  command: "/usr/pgsql-{{ postgresql_version }}/bin/postgresql{{ postgresql_version_no_dots }}-setup initdb"
-  when: not postgres_initialized.stat.exists
+# - name: Initialize postgres
+#   command: "/usr/pgsql-{{ postgresql_version }}/bin/postgresql{{ postgresql_version_no_dots }}-setup initdb"
+#   when: not postgres_initialized.stat.exists
 
-- name: Update the sym link to pg_ctl
-  command: ln -s /usr/pgsql-9.6/bin/pg_ctl /usr/bin/pg_ctl
-  changed_when: false
-  ignore_errors: true
+# - name: Update the sym link to pg_ctl
+#   command: ln -s /usr/pgsql-9.6/bin/pg_ctl /usr/bin/pg_ctl
+#   changed_when: false
+#   ignore_errors: true
 
-- name: copy pg_hba.conf so user/pass authentication works in postgres
-  template:
-    src: pg_hba.conf.j2
-    dest: "{{ postgresql_data_path }}/pg_hba.conf"
-    owner: postgres
-    group: postgres
-    mode: 0600
+# - name: copy pg_hba.conf so user/pass authentication works in postgres
+#   template:
+#     src: pg_hba.conf.j2
+#     dest: "{{ postgresql_data_path }}/pg_hba.conf"
+#     owner: postgres
+#     group: postgres
+#     mode: 0600
 
-- name: Update the listen_addresses
-  lineinfile:
-    path: /var/lib/pgsql/9.6/data/postgresql.conf
-    regex: "^#listen_addresses = 'localhost'"
-    insertafter: '^#listen_addresses'
-    line: "listen_addresses = '*'"
+# - name: Update the listen_addresses
+#   lineinfile:
+#     path: /var/lib/pgsql/9.6/data/postgresql.conf
+#     regex: "^#listen_addresses = 'localhost'"
+#     insertafter: '^#listen_addresses'
+#     line: "listen_addresses = '*'"
 
-- name: Update the port to listen on
-  lineinfile:
-    path: "{{ postgresql_data_path }}/postgresql.conf"
-    regex: "^#port = 5432"
-    insertafter: '^#port = 5432'
-    line: "port = {{ postgresql_port|default(5432) }}"
-  when:
-    - postgresql_port is defined
-    - postgresql_port != 5432
+# - name: Update the port to listen on
+#   lineinfile:
+#     path: "{{ postgresql_data_path }}/postgresql.conf"
+#     regex: "^#port = 5432"
+#     insertafter: '^#port = 5432'
+#     line: "port = {{ postgresql_port|default(5432) }}"
+#   when:
+#     - postgresql_port is defined
+#     - postgresql_port != 5432
 
-- name: Start and enable the postgres service
-  service:
-    name: "postgresql-{{ postgresql_version }}"
-    state: restarted
-    enabled: yes
+# - name: Start and enable the postgres service
+#   service:
+#     name: "postgresql-{{ postgresql_version }}"
+#     state: restarted
+#     enabled: yes
 
 - name: Install python-psycopg2 required for the ansible postgres modules
   yum:
     name: python-psycopg2
-    state: installed
+    state: absent
+
+- name: Make sure psycopg2 is installed
+  pip:
+    name: psycopg2
+    state: present
 
 - name: Create the tower db
   postgresql_db:

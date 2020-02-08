@@ -90,14 +90,14 @@
       #   become: false
       #   loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db_haproxy') | list }}"
 
-      - name: waiting for tower_db servers to come back
-        local_action: wait_for host={{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[0] }} port=22 state=started delay=30 timeout=240
-        become: false
+      # - name: waiting for tower_db servers to come back
+      #   local_action: wait_for host={{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[0] }} port=22 state=started delay=30 timeout=240
+      #   become: false
 
-      - name: waiting for tower_db_replicas servers to come back
-        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
-        become: false
-        loop: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[1:] | list }}"
+      # - name: waiting for tower_db_replicas servers to come back
+      #   local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+      #   become: false
+      #   loop: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[1:] | list }}"
 
     rescue:
       - debug:
