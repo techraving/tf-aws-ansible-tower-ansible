@@ -113,12 +113,12 @@
       #     path: "{{ base_directory }}"
       #     state: absent
 
-- name: Run the ansible playbook to provision instances
-  hosts: all
-  become: true
+# - name: Run the ansible playbook to provision instances
+#   hosts: all
+#   become: true
 
-  roles:
-    - role: provision
+#   roles:
+#     - role: provision
 
 - name: Install Postgresql Databases
   hosts: tower_db, tower_db_replicas
