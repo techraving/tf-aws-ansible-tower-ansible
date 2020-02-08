@@ -10,25 +10,25 @@
     ssh_user: root
 
   tasks:
-  # - name: Create the destination base_directory
-  #   file:
-  #     path: "{{ base_directory }}"
-  #     state: directory 
+  - name: Create the destination base_directory
+    file:
+      path: "{{ base_directory }}"
+      state: directory 
 
-  # - name: Download the terraform config from git
-  #   git:
-  #     repo: "{{ repository_url }}"
-  #     dest: "{{ base_directory }}"
-  #     version: "{{ version }}"
+  - name: Download the terraform config from git
+    git:
+      repo: "{{ repository_url }}"
+      dest: "{{ base_directory }}"
+      version: "{{ version }}"
       
   - name: Run the Terraform plans
     block:
-      # - name: Run the templates for provisioning a virtual machine
-      #   terraform:
-      #     project_path: "{{ base_directory }}"
-      #     state: present
-      #     force_init: true
-      #     variables_file: "{{ base_directory }}/aws_vars.tfvars"
+      - name: Run the templates for provisioning a virtual machine
+        terraform:
+          project_path: "{{ base_directory }}"
+          state: present
+          force_init: true
+          variables_file: "{{ base_directory }}/aws_vars.tfvars"
 
       - name: Get status from Terraform
         command: terraform show -json
@@ -53,6 +53,13 @@
           groups: 
             - tower_ui
           ansible_user: "{{ ssh_user }}"
+          postgresql_username: 'ansible_tower'
+          postgresql_password: 'Redhat@2019!'
+          postgresql_database: 'tower'
+          postgresql_root_password: 'smartvm'
+          ports:
+            - 80
+            - 443
         loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui') | list }}"
 
       - name: Add to tower_db_haproxy node groups
@@ -71,7 +78,13 @@
           groups: 
             - tower_db
           ansible_user: "{{ ssh_user }}"
+          ports:
+            - 5432
           pgsqlrep_role: master
+          postgresql_username: 'ansible_tower'
+          postgresql_password: 'Redhat@2019!'
+          postgresql_database: 'tower'
+          postgresql_root_password: 'smartvm'
 
       - name: Add to tower_db_replicas node groups
         add_host:
@@ -79,32 +92,38 @@
           groups: 
             - tower_db_replicas
           ansible_user: "{{ ssh_user }}"
+          ports:
+            - 5432
           pgsqlrep_role: replica
+          postgresql_username: 'ansible_tower'
+          postgresql_password: 'Redhat@2019!'
+          postgresql_database: 'tower'
+          postgresql_root_password: 'smartvm'
         loop: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[1:] | list }}"
 
-      # - name: waiting for tower_ui_haproxy servers to come back
-      #   local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
-      #   become: false
-      #   loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui_haproxy') | list }}"
+      - name: waiting for tower_ui_haproxy servers to come back
+        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+        become: false
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui_haproxy') | list }}"
 
-      # - name: waiting for tower_ui servers to come back
-      #   local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
-      #   become: false
-      #   loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui') | list }}"
+      - name: waiting for tower_ui servers to come back
+        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+        become: false
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui') | list }}"
 
-      # - name: waiting for tower_db_haproxy servers to come back
-      #   local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
-      #   become: false
-      #   loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db_haproxy') | list }}"
+      - name: waiting for tower_db_haproxy servers to come back
+        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+        become: false
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db_haproxy') | list }}"
 
-      # - name: waiting for tower_db servers to come back
-      #   local_action: wait_for host={{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[0] }} port=22 state=started delay=30 timeout=240
-      #   become: false
+      - name: waiting for tower_db servers to come back
+        local_action: wait_for host={{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[0] }} port=22 state=started delay=30 timeout=240
+        become: false
 
-      # - name: waiting for tower_db_replicas servers to come back
-      #   local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
-      #   become: false
-      #   loop: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[1:] | list }}"
+      - name: waiting for tower_db_replicas servers to come back
+        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+        become: false
+        loop: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[1:] | list }}"
 
     rescue:
       - debug:
@@ -120,41 +139,56 @@
       #     path: "{{ base_directory }}"
       #     state: absent
 
-# - name: Run the ansible playbook to provision instances
-#   hosts: all
-#   become: true
+- name: Deploy .ssh files
+  hosts: all
+  become: true
 
-#   roles:
-#     - role: provision
+  tasks:
+    - name: Deploy id_rsa files
+      command: "scp ~/.ssh/id_rsa root@{{ inventory_hostname }}:/root/.ssh/id_rsa"
+      changed_when: false
+      failed_when: false
 
-# - name: Install Postgresql Databases
-#   hosts: tower_db, tower_db_replicas
-#   become: true
+    - name: Deploy id_rsa.pub files
+      command: "scp ~/.ssh/id_rsa.pub root@{{ inventory_hostname }}:/root/.ssh/id_rsa.pub"
+      changed_when: false
+      failed_when: false
 
-#   roles:
-#     - role: "postgres_install"
+- name: Run the ansible playbook to provision instances
+  hosts: all
+  become: true
 
-# - name: Replicate Postgresql Databases
-#   hosts: tower_db, tower_db_replicas
-#   become: true
+  roles:
+    - role: provision
 
-#   roles:
-#     - role: "postgres_replication"
-#       when: groups['tower_db_replicas']|length > 0
+- name: Install Postgresql Databases
+  hosts: tower_db, tower_db_replicas
+  become: true
 
-# - name: Replicate Postgresql HAProxy
-#   hosts: tower_db_haproxy
-#   become: true
+  roles:
+    - role: "postgres_install"
 
-#   roles:
-#     - role: "postgres_haproxy"
+- name: Replicate Postgresql Databases
+  hosts: tower_db, tower_db_replicas
+  become: true
 
-# - name: Prepare UI Servers
-#   hosts: tower_ui
-#   become: true
+  roles:
+    - role: "postgres_replication"
+      when: groups['tower_db_replicas']|length > 0
 
-#   roles:
-#     - role: "prepare_servers"
+- name: Replicate Postgresql HAProxy
+  hosts: tower_db_haproxy
+  become: true
+
+  roles:
+    - role: "postgres_haproxy"
+
+- name: Prepare UI Servers
+  hosts: tower_ui
+  become: true
+
+  roles:
+    - role: "prepare_servers"
 
 - name: Install Ansible Tower
   hosts: tower_ui[0]

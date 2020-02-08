@@ -1,69 +1,69 @@
 ---
 
-# - name: Install repmgrd
-#   shell: curl https://dl.2ndquadrant.com/default/release/get/9.6/rpm | sudo bash
-#   changed_when: false
-#   args:
-#     chdir: /tmp
+- name: Install repmgrd
+  shell: curl https://dl.2ndquadrant.com/default/release/get/9.6/rpm | sudo bash
+  changed_when: false
+  args:
+    chdir: /tmp
 
-# - name: Install repmgr96
-#   yum:
-#     name: repmgr96
+- name: Install repmgr96
+  yum:
+    name: repmgr96
 
-# - name: Update the sym link to repmgr
-#   command: ln -s /usr/pgsql-9.6/bin/repmgr /usr/bin/repmgr
-#   changed_when: false
-#   ignore_errors: true
+- name: Update the sym link to repmgr
+  command: ln -s /usr/pgsql-9.6/bin/repmgr /usr/bin/repmgr
+  changed_when: false
+  ignore_errors: true
 
-# - name: Create repmgr user account
-#   command: "createuser --replication --createdb --createrole --superuser {{ pgsqlrep_repmgr_user }}"
-#   become: yes
-#   become_user: postgres
-#   ignore_errors: true
+- name: Create repmgr user account
+  command: "createuser --replication --createdb --createrole --superuser {{ pgsqlrep_repmgr_user }}"
+  become: yes
+  become_user: postgres
+  ignore_errors: true
 
-# - name: Alter repmgr user account
-#   command: "psql -c 'ALTER USER {{ pgsqlrep_repmgr_user }} SET search_path TO repmgr_test, \"$user\", public;'"
-#   become: yes
-#   become_user: postgres
-#   ignore_errors: true
+- name: Alter repmgr user account
+  command: "psql -c 'ALTER USER {{ pgsqlrep_repmgr_user }} SET search_path TO repmgr_test, \"$user\", public;'"
+  become: yes
+  become_user: postgres
+  ignore_errors: true
 
-# - name: Create repmgr database
-#   command: "createdb repmgr --owner={{ pgsqlrep_repmgr_user }}"
-#   become: yes
-#   become_user: postgres
-#   ignore_errors: true
+- name: Create repmgr database
+  command: "createdb repmgr --owner={{ pgsqlrep_repmgr_user }}"
+  become: yes
+  become_user: postgres
+  ignore_errors: true
 
-# - name: Configure postgresql.conf
-#   lineinfile:
-#     state: present
-#     backrefs: yes
-#     dest: "{{ pgsqlrep_data_path }}/postgresql.conf"
-#     regexp: "{{ item.regexp }}"
-#     line: "{{ item.line }}"
-#   loop: "{{ pgsqlrep_postgres_conf_lines }}"
+- name: Configure postgresql.conf
+  lineinfile:
+    state: present
+    backrefs: yes
+    dest: "{{ pgsqlrep_data_path }}/postgresql.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop: "{{ pgsqlrep_postgres_conf_lines }}"
 
-# - name: Configure repmgr.conf
-#   lineinfile:
-#     state: present
-#     backrefs: yes
-#     dest: "/etc/repmgr/9.6/repmgr.conf"
-#     regexp: "{{ item.regexp }}"
-#     line: "{{ item.line }}"
-#   loop: "{{ pgsqlrep_repmgr_conf_lines }}"
+- name: Configure repmgr.conf
+  lineinfile:
+    state: present
+    backrefs: yes
+    dest: "/etc/repmgr/9.6/repmgr.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop: "{{ pgsqlrep_repmgr_conf_lines }}"
 
-# - name: copy pg_hba.conf so user/pass authentication works in postgres
-#   template:
-#     src: pg_hba.conf.j2
-#     dest: "{{ postgresql_data_path }}/pg_hba.conf"
-#     owner: postgres
-#     group: postgres
-#     mode: 0600
+- name: copy pg_hba.conf so user/pass authentication works in postgres
+  template:
+    src: pg_hba.conf.j2
+    dest: "{{ postgresql_data_path }}/pg_hba.conf"
+    owner: postgres
+    group: postgres
+    mode: 0600
 
-# - name: restart postgresql
-#   service:
-#     name: postgresql-{{ postgresql_version }}
-#     state: restarted
-#     enabled: true
+- name: restart postgresql
+  service:
+    name: postgresql-{{ postgresql_version }}
+    state: restarted
+    enabled: true
 
 - include_tasks: "{{ pgsqlrep_role }}.yml"
   when: pgsqlrep_role != 'skip'
