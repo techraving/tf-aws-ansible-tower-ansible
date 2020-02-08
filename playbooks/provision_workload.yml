@@ -10,25 +10,25 @@
     ssh_user: root
 
   tasks:
-  - name: Create the destination base_directory
-    file:
-      path: "{{ base_directory }}"
-      state: directory 
+  # - name: Create the destination base_directory
+  #   file:
+  #     path: "{{ base_directory }}"
+  #     state: directory 
 
-  - name: Download the terraform config from git
-    git:
-      repo: "{{ repository_url }}"
-      dest: "{{ base_directory }}"
-      version: "{{ version }}"
+  # - name: Download the terraform config from git
+  #   git:
+  #     repo: "{{ repository_url }}"
+  #     dest: "{{ base_directory }}"
+  #     version: "{{ version }}"
       
   - name: Run the Terraform plans
     block:
-      - name: Run the templates for provisioning a virtual machine
-        terraform:
-          project_path: "{{ base_directory }}"
-          state: present
-          force_init: true
-          variables_file: "{{ base_directory }}/aws_vars.tfvars"
+      # - name: Run the templates for provisioning a virtual machine
+      #   terraform:
+      #     project_path: "{{ base_directory }}"
+      #     state: present
+      #     force_init: true
+      #     variables_file: "{{ base_directory }}/aws_vars.tfvars"
 
       - name: Get status from Terraform
         command: terraform show -json
@@ -101,29 +101,29 @@
           postgresql_root_password: 'smartvm'
         loop: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[1:] | list }}"
 
-      - name: waiting for tower_ui_haproxy servers to come back
-        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
-        become: false
-        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui_haproxy') | list }}"
+      # - name: waiting for tower_ui_haproxy servers to come back
+      #   local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+      #   become: false
+      #   loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui_haproxy') | list }}"
 
-      - name: waiting for tower_ui servers to come back
-        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
-        become: false
-        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui') | list }}"
+      # - name: waiting for tower_ui servers to come back
+      #   local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+      #   become: false
+      #   loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui') | list }}"
 
-      - name: waiting for tower_db_haproxy servers to come back
-        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
-        become: false
-        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db_haproxy') | list }}"
+      # - name: waiting for tower_db_haproxy servers to come back
+      #   local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+      #   become: false
+      #   loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db_haproxy') | list }}"
 
-      - name: waiting for tower_db servers to come back
-        local_action: wait_for host={{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[0] }} port=22 state=started delay=30 timeout=240
-        become: false
+      # - name: waiting for tower_db servers to come back
+      #   local_action: wait_for host={{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[0] }} port=22 state=started delay=30 timeout=240
+      #   become: false
 
-      - name: waiting for tower_db_replicas servers to come back
-        local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
-        become: false
-        loop: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[1:] | list }}"
+      # - name: waiting for tower_db_replicas servers to come back
+      #   local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
+      #   become: false
+      #   loop: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[1:] | list }}"
 
     rescue:
       - debug:
@@ -145,12 +145,12 @@
 
   tasks:
     - name: Deploy id_rsa files
-      command: "scp ~/.ssh/id_rsa root@{{ inventory_hostname }}:/root/.ssh/id_rsa"
+      command: "scp /root/.ssh/id_rsa root@{{ inventory_hostname }}:/root/.ssh/id_rsa"
       changed_when: false
       failed_when: false
 
     - name: Deploy id_rsa.pub files
-      command: "scp ~/.ssh/id_rsa.pub root@{{ inventory_hostname }}:/root/.ssh/id_rsa.pub"
+      command: "scp /root/.ssh/id_rsa.pub root@{{ inventory_hostname }}:/root/.ssh/id_rsa.pub"
       changed_when: false
       failed_when: false
 
