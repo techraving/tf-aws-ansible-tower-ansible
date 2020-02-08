@@ -129,27 +129,27 @@
 #   roles:
 #     - role: "postgres_install"
 
-- name: Replicate Postgresql Databases
-  hosts: tower_db, tower_db_replicas
+# - name: Replicate Postgresql Databases
+#   hosts: tower_db, tower_db_replicas
+#   become: true
+
+#   roles:
+#     - role: "postgres_replication"
+#       when: groups['tower_db_replicas']|length > 0
+
+- name: Replicate Postgresql HAProxy
+  hosts: tower_db_haproxy
   become: true
 
   roles:
-    - role: "postgres_replication"
-      when: groups['tower_db_replicas']|length > 0
+    - role: "postgres_haproxy"
 
-# - name: Replicate Postgresql HAProxy
-#   hosts: tower_db_haproxy
-#   become: true
+- name: Prepare UI Servers
+  hosts: tower_ui
+  become: true
 
-#   roles:
-#     - role: "postgres_haproxy"
-
-# - name: Prepare UI Servers
-#   hosts: tower_ui
-#   become: true
-
-#   roles:
-#     - role: "prepare_servers"
+  roles:
+    - role: "prepare_servers"
 
 # - name: Install Ansible Tower
 #   hosts: tower_ui[0]
