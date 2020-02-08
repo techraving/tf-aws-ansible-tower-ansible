@@ -71,11 +71,6 @@
     name: python-psycopg2
     state: absent
 
-- name: Install pip required for the ansible postgres modules
-  yum:
-    name: pip
-    state: present
-
 - name: Make sure psycopg2 is installed
   pip:
     name: psycopg2
