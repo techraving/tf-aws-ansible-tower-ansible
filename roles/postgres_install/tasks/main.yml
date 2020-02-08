@@ -66,14 +66,14 @@
 #     state: restarted
 #     enabled: yes
 
-- name: Uninstall python-psycopg2 required for the ansible postgres modules
-  yum:
-    name: python-psycopg2
-    state: absent
+# - name: Uninstall python-psycopg2 required for the ansible postgres modules
+#   yum:
+#     name: python-psycopg2
+#     state: absent
 
 - name: Make sure psycopg2 is installed
   pip:
-    name: psycopg2
+    name: psycopg2-binary
     state: present
 
 - name: Create the tower db

@@ -1,48 +1,49 @@
 ---
-# - name: Install epel-release
-#   yum:
-#     name: epel-release
-#     state: latest
+- name: Install epel-release
+  yum:
+    name: epel-release
+    state: latest
 
-# - name: Update kernel
-#   yum:
-#     name: kernel
-#     state: latest
-#   register: kernel_changed
+- name: Update kernel
+  yum:
+    name: kernel
+    state: latest
+  register: kernel_changed
 
-# - name: Reboot system on Kernel Update
-#   shell: sleep 2 && reboot "Ansible kernel update triggered"
-#   async: 1
-#   poll: 0
-#   ignore_errors: true
-#   when:
-#     - kernel_changed.changed
+- name: Reboot system on Kernel Update
+  shell: sleep 2 && reboot "Ansible kernel update triggered"
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when:
+    - kernel_changed.changed
 
-# - name: waiting for server to come back
-#   local_action: wait_for host={{ inventory_hostname }} port=22 state=started delay=30 timeout=220
-#   become: false
-#   when:
-#     - kernel_changed.changed
+- name: waiting for server to come back
+  local_action: wait_for host={{ inventory_hostname }} port=22 state=started delay=30 timeout=220
+  become: false
+  when:
+    - kernel_changed.changed
 
-# - name: Update all packages
-#   yum:
-#     name: "*"
-#     state: latest
-#   register: updated
+- name: Update all packages
+  yum:
+    name: "*"
+    state: latest
+  register: updated
 
-# - name: install basic packages
-#   yum:
-#     name: "{{ packages }}"
-#     state: latest
-#   vars:
-#     packages: 
-#       - wget
-#       - vim
-#       - screen
-#       - bash-completion
-#       - firewalld
-#       - unzip
-#       - python-pip
+- name: install basic packages
+  yum:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages: 
+      - wget
+      - vim
+      - screen
+      - bash-completion
+      - firewalld
+      - unzip
+      - python-pip
 
 - name: Update python-pip
   command: pip install --upgrade pip
+  changed_when: false
