@@ -66,10 +66,15 @@
 #     state: restarted
 #     enabled: yes
 
-- name: Install python-psycopg2 required for the ansible postgres modules
+- name: Uninstall python-psycopg2 required for the ansible postgres modules
   yum:
     name: python-psycopg2
     state: absent
+
+- name: Install pip required for the ansible postgres modules
+  yum:
+    name: pip
+    state: present
 
 - name: Make sure psycopg2 is installed
   pip:
