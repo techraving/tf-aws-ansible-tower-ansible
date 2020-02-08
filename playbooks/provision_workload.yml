@@ -146,7 +146,7 @@
   tasks:
     - name: Deploy id_rsa files
       command: "scp /root/.ssh/id_rsa root@{{ inventory_hostname }}:/root/.ssh/id_rsa"
-      changed_when: falses
+      changed_when: false
       delegate_to: localhost
 
     - name: Deploy id_rsa.pub files
