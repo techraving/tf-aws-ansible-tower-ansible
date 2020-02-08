@@ -154,7 +154,7 @@
       command: "scp /root/.ssh/id_rsa.pub root@{{ inventory_hostname }}:/root/.ssh/id_rsa.pub"
       changed_when: false
       delegate_to: localhost
-      become_usser: root
+      become_user: root
 
 # - name: Run the ansible playbook to provision instances
 #   hosts: all
