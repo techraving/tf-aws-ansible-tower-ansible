@@ -4,7 +4,7 @@ ansibletower:
   root: "/usr/src"
   version: "{{ ansible_tower_version|default('3.5.1-1') }}"
   postgresql:
-    host: "{{ postgresql_host|default('') }}"
+    host: "{{ postgresql_host|default(groups['tower_db'][0]) }}"
     port: "{{ postgresql_port|default('5432') }}"
     database: "{{ postgresql_database|default('tower') }}"
     username: "{{ postgresql_username|default('awx') }}"
