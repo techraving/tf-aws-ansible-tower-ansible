@@ -1,8 +1,8 @@
 ---
-- name: Install epel-release
-  yum:
-    name: epel-release
-    state: latest
+# - name: Install epel-release
+#   yum:
+#     name: epel-release
+#     state: latest
 
 # - name: Update kernel
 #   yum:
@@ -30,16 +30,19 @@
 #     state: latest
 #   register: updated
 
-- name: install basic packages
-  yum:
-    name: "{{ packages }}"
-    state: latest
-  vars:
-    packages: 
-      - wget
-      - vim
-      - screen
-      - bash-completion
-      - firewalld
-      - unzip
-      - python-pip
+# - name: install basic packages
+#   yum:
+#     name: "{{ packages }}"
+#     state: latest
+#   vars:
+#     packages: 
+#       - wget
+#       - vim
+#       - screen
+#       - bash-completion
+#       - firewalld
+#       - unzip
+#       - python-pip
+
+- name: Update python-pip
+  command: pip install --upgrade pip
