@@ -36,13 +36,13 @@
 
 - name: Disable port 80 in firewalld
   firewalld:
-    service: http
+    port: 80/tcp
     state: absent
     zone: public
 
 - name: Disable port 443 in firewalld
   firewalld:
-    service: https
+    port: 443/tcp
     state: absent
     zone: public
 
