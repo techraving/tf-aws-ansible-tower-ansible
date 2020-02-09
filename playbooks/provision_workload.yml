@@ -159,41 +159,41 @@
       changed_when: false
       with_items: "{{ groups['tower_ui'] }}"
 
-# - name: Run the ansible playbook to provision instances
-#   hosts: all
-#   become: true
+- name: Run the ansible playbook to provision instances
+  hosts: all
+  become: true
 
-#   roles:
-#     - role: provision
+  roles:
+    - role: provision
 
-# - name: Install Postgresql Databases
-#   hosts: tower_db, tower_db_replicas
-#   become: true
+- name: Install Postgresql Databases
+  hosts: tower_db, tower_db_replicas
+  become: true
 
-#   roles:
-#     - role: "postgres_install"
+  roles:
+    - role: "postgres_install"
 
-# - name: Replicate Postgresql Databases
-#   hosts: tower_db, tower_db_replicas
-#   become: true
+- name: Replicate Postgresql Databases
+  hosts: tower_db, tower_db_replicas
+  become: true
 
-#   roles:
-#     - role: "postgres_replication"
-#       when: groups['tower_db_replicas']|length > 0
+  roles:
+    - role: "postgres_replication"
+      when: groups['tower_db_replicas']|length > 0
 
-# - name: Replicate Postgresql HAProxy
-#   hosts: tower_db_haproxy
-#   become: true
+- name: Replicate Postgresql HAProxy
+  hosts: tower_db_haproxy
+  become: true
 
-#   roles:
-#     - role: "postgres_haproxy"
+  roles:
+    - role: "postgres_haproxy"
 
-# - name: Prepare UI Servers
-#   hosts: tower_ui
-#   become: true
+- name: Prepare UI Servers
+  hosts: tower_ui
+  become: true
 
-#   roles:
-#     - role: "prepare_servers"
+  roles:
+    - role: "prepare_servers"
 
 - name: Install Ansible Tower
   hosts: tower_ui[0]
