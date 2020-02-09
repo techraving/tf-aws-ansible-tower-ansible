@@ -31,13 +31,11 @@
 - name: Disable port 80 in firewalld
   firewalld:
     service: http
-    permanent: yes
     state: absent
     zone: public
 
 - name: Disable port 443 in firewalld
   firewalld:
     service: https
-    permanent: yes
     state: absent
     zone: public
