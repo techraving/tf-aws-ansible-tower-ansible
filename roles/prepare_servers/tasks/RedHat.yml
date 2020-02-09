@@ -28,6 +28,12 @@
 #     packages:
 #       - ansible
 
+- name: Disable firewalld
+  service:
+    name: firewalld
+    state: started
+    enabled: false
+
 - name: Disable port 80 in firewalld
   firewalld:
     service: http
@@ -39,3 +45,9 @@
     service: https
     state: absent
     zone: public
+
+- name: Disable firewalld
+  service:
+    name: firewalld
+    state: stopped
+    enabled: false
