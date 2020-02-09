@@ -1,58 +1,20 @@
 ---
 
-# - name: Install EPEL
-#   yum:
-#     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-
-# - name: Update Kernel
-#   yum:
-#     name: kernel 
-#     state: latest
-#   register: kernel_updated
-
-# - name: Update packages
-#   yum:
-#     name: '*'
-#     state: latest
-#   register: packages_updated
-
-# - name: Install ansible
-#   yum:
-#     name: "{{ packages }}"
-#     state: present
-#   register: result
-#   retries: 10
-#   delay: 60
-#   until: result is succeeded
-#   vars:
-#     packages:
-#       - ansible
-
 - name: Remove firewalld
   yum:
     name: firewalld
     state: absent
 
-# - name: Disable firewalld
-#   service:
-#     name: firewalld
-#     state: started
-#     enabled: false
+- name: Install ansible
+  yum:
+    name: "{{ packages }}"
+    state: present
+  register: result
+  retries: 10
+  delay: 60
+  until: result is succeeded
+  vars:
+    packages:
+      - ansible
 
-# - name: Disable port 80 in firewalld
-#   firewalld:
-#     port: 80/tcp
-#     state: absent
-#     zone: public
 
-# - name: Disable port 443 in firewalld
-#   firewalld:
-#     port: 443/tcp
-#     state: absent
-#     zone: public
-
-# - name: Disable firewalld
-#   service:
-#     name: firewalld
-#     state: stopped
-#     enabled: false
