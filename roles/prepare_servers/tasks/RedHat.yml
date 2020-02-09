@@ -51,8 +51,8 @@
 #     state: absent
 #     zone: public
 
-- name: Disable firewalld
-  service:
-    name: firewalld
-    state: stopped
-    enabled: false
+# - name: Disable firewalld
+#   service:
+#     name: firewalld
+#     state: stopped
+#     enabled: false
