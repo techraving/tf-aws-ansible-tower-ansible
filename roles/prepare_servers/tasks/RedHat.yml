@@ -28,23 +28,28 @@
 #     packages:
 #       - ansible
 
-- name: Disable firewalld
-  service:
+- name: Remove firewalld
+  yum:
     name: firewalld
-    state: started
-    enabled: false
-
-- name: Disable port 80 in firewalld
-  firewalld:
-    port: 80/tcp
     state: absent
-    zone: public
 
-- name: Disable port 443 in firewalld
-  firewalld:
-    port: 443/tcp
-    state: absent
-    zone: public
+# - name: Disable firewalld
+#   service:
+#     name: firewalld
+#     state: started
+#     enabled: false
+
+# - name: Disable port 80 in firewalld
+#   firewalld:
+#     port: 80/tcp
+#     state: absent
+#     zone: public
+
+# - name: Disable port 443 in firewalld
+#   firewalld:
+#     port: 443/tcp
+#     state: absent
+#     zone: public
 
 - name: Disable firewalld
   service:
