@@ -1,11 +1,11 @@
 [tower]
 {% for host in groups['tower_ui'] %}
-{{ host }}
+{{ host }} ansible_connection=local
 {% endfor %}
 
 [database]
 {% for host in groups['tower_db'] %}
-{{ host }}
+#{{ host }}
 {% endfor %}
 
 [all:vars]
