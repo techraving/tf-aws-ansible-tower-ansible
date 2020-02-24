@@ -161,11 +161,12 @@
 
 - name: set .ssh permissions
   hosts: tower_ui
+  become: true
 
   tasks:
     - name: Set permissions
       command: "chmod 0600 {{ item }}"
-      with_ite=ms:
+      with_items:
         - /root/.ssh/id_rsa
         - /root/.ssh/ansible.pem
 
