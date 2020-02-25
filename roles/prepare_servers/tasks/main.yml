@@ -8,3 +8,9 @@
     path: /etc/ansible/ansible.cfg
     regex: "^#host_key_checking"
     line: "host_key_checking=false"
+
+- name: Set permissions
+  command: "chmod 0600 {{ item }}"
+  with_items:
+    - /root/.ssh/id_rsa
+    - /root/.ssh/ansible.pem

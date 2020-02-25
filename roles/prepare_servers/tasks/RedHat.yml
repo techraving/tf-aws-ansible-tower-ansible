@@ -16,5 +16,6 @@
   vars:
     packages:
       - ansible
+      - rabbitmq-server
 
 
