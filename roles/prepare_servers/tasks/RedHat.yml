@@ -13,6 +13,13 @@
   vars:
     packages:
       - ansible
+      - python-psycopg2
+      - python-setuptools
+      - libselinux-python
+      - setools-libs
+      - yum-utils
+      - sudo
+      - acl
 
 - name: Install ansible
   yum:
