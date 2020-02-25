@@ -1,6 +1,6 @@
 [tower]
 {% for host in groups['tower_ui'] %}
-{{ host }} ansible_connection=local
+{{ host }}
 {% endfor %}
 
 [database]

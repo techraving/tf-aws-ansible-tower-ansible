@@ -7,7 +7,7 @@
   lineinfile:
     path: /etc/ansible/ansible.cfg
     regex: "^#host_key_checking"
-    line: "host_key_checking=false"
+    line: "host_key_checking=False"
 
 - name: Set permissions
   command: "chmod 0600 {{ item }}"
