@@ -9,13 +9,18 @@
   yum:
     name: "{{ packages }}"
     state: latest
-  register: result
-  retries: 10
-  delay: 60
   until: result is succeeded
   vars:
     packages:
       - ansible
+
+- name: Install ansible
+  yum:
+    name: "{{ packages }}"
+    state: absent
+  until: result is succeeded
+  vars:
+    packages:
       - erlang
       - socat
       - rabbitmq-server
