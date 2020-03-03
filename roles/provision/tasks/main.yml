@@ -11,7 +11,7 @@
 
 - name: get epel-release rpm
   uri:
-    url: http://nexus.techraving.com/epel-release/epel-release-latest-7.noarch.rpm
+    url: http://nexus.techraving.com/repository/RPMs/epel-release/epel-release-latest-7.noarch.rpm
     user: 'admin'
     password: "K3l4ndr41t01!"
     force_basic_auth: yes
