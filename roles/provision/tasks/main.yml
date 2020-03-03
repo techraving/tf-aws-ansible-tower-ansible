@@ -36,9 +36,6 @@
   yum:
     name: ~/epel-release-latest-7.noarch.rpm
   register: result
-  retries: 10
-  delay: 60
-  until: result is succeeded
   when:
     - ansible_os_family == 'RedHat'
     - ansible_distribution != 'RedHat'
