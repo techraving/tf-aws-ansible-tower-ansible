@@ -18,15 +18,15 @@
   until: result is succeeded
   when:
     - ansible_os_family == 'RedHat'
-    - ansible_distribution == 'RedHat'
-    
+    - ansible_distribution != 'RedHat'
+
 - name: Install epel-release
   yum:
     name: epel-release
     state: latest
   when:
     - ansible_os_family == 'RedHat'
-    - ansible_distribution == 'RedHat'
+    - ansible_distribution != 'RedHat'
 
 - name: Update kernel
   yum:
