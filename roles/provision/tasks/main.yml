@@ -27,14 +27,14 @@
 - name: Copy the binary
   copy:
     src: files/epel-release-latest-7.noarch.rpm
-    dest: ~/epel-release-latest-7.noarch.rpm
+    dest: /tmp/epel-release-latest-7.noarch.rpm
   when:
     - ansible_os_family == 'RedHat'
     - ansible_distribution != 'RedHat'
 
 - name: Install epel-release rpm
   yum:
-    name: ~/epel-release-latest-7.noarch.rpm
+    name: /tmp/epel-release-latest-7.noarch.rpm
   register: result
   when:
     - ansible_os_family == 'RedHat'
