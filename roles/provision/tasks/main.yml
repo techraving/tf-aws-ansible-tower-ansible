@@ -11,11 +11,15 @@
 
 - name: get epel-release rpm
   uri:
-    url: http://nexus.techraving.com/repository/RPMs/epel-release/epel-release-latest-7.noarch.rpm
+    url: http://10.0.0.139/repository/RPMs/epel-release/epel-release-latest-7.noarch.rpm
     user: 'admin'
     password: "K3l4ndr41t01!"
     force_basic_auth: yes
     dest: ~/epel-release-latest-7.noarch.rpm
+  register: result
+  retries: 10
+  delay: 30
+  until: result is succeeded
   when:
     - ansible_os_family == 'RedHat'
     - ansible_distribution != 'RedHat'
