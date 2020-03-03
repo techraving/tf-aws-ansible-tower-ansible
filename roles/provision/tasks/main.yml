@@ -4,10 +4,10 @@
   command: "hostnamectl set-hostname {{ inventory_hostname }}"
   changed_when: false
 
-- name: Remove epel-release
-  yum:
-    name: epel-release
-    state: absent
+# - name: Remove epel-release
+#   yum:
+#     name: epel-release
+#     state: absent
 
 # - name: get epel-release rpm
 #   uri:
@@ -24,29 +24,29 @@
 #     - ansible_os_family == 'RedHat'
 #     - ansible_distribution != 'RedHat'
 
-- name: Copy the binary
-  copy:
-    src: files/epel-release-latest-7.noarch.rpm
-    dest: /tmp/epel-release-latest-7.noarch.rpm
-  when:
-    - ansible_os_family == 'RedHat'
-    - ansible_distribution != 'RedHat'
+# - name: Copy the binary
+#   copy:
+#     src: files/epel-release-latest-7.noarch.rpm
+#     dest: /tmp/epel-release-latest-7.noarch.rpm
+#   when:
+#     - ansible_os_family == 'RedHat'
+#     - ansible_distribution != 'RedHat'
 
-- name: Install epel-release rpm
-  yum:
-    name: /tmp/epel-release-latest-7.noarch.rpm
-  register: result
-  when:
-    - ansible_os_family == 'RedHat'
-    - ansible_distribution != 'RedHat'
+# - name: Install epel-release rpm
+#   yum:
+#     name: /tmp/epel-release-latest-7.noarch.rpm
+#   register: result
+#   when:
+#     - ansible_os_family == 'RedHat'
+#     - ansible_distribution != 'RedHat'
 
-- name: Install epel-release package
-  yum:
-    name: epel-release
-    state: latest
-  when:
-    - ansible_os_family == 'RedHat'
-    - ansible_distribution != 'RedHat'
+# - name: Install epel-release package
+#   yum:
+#     name: epel-release
+#     state: latest
+#   when:
+#     - ansible_os_family == 'RedHat'
+#     - ansible_distribution != 'RedHat'
 
 - name: Update kernel
   yum:
