@@ -19,7 +19,7 @@
   #   git:
   #     repo: "{{ repository_url }}"
   #     dest: "{{ base_directory }}"
-      version: "{{ version }}"
+      # version: "{{ version }}"
       
   - name: Run the Terraform plans
     block:
