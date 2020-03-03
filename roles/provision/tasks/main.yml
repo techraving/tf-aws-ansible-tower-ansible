@@ -3,7 +3,7 @@
 - name: Update the hostname
   command: "hostnamectl set-hostname {{ inventory_hostname }}"
   changed_when: false
-  
+
 - name: Remove epel-release
   yum:
     name: epel-release
@@ -12,11 +12,21 @@
 - name: Install epel-release rpm
   yum:
     name: http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-
+  register: result
+  retries: 10
+  delay: 60
+  until: result is succeeded
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution == 'RedHat'
+    
 - name: Install epel-release
   yum:
     name: epel-release
     state: latest
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution == 'RedHat'
 
 - name: Update kernel
   yum:
