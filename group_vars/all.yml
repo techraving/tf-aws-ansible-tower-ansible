@@ -2,3 +2,4 @@ postgresql_username: 'ansible_tower'
 postgresql_password: 'Redhat@2019!'
 postgresql_database: 'tower'
 postgresql_root_password: 'smartvm'
+ansible_ssh_user: ansible
