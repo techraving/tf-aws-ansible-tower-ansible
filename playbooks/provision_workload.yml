@@ -144,7 +144,7 @@
   become: true
   vars:
     rhel_username: skrutsinger
-    rhel_password: K3l4ndra1t01!
+    rhel_password: D4rkn3ss1t01!
     rh_pool_ids:
       - 8a85f99b6e417e2e016e6f0478444048
     rh_repos:
