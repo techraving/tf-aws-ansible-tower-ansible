@@ -1,6 +1,9 @@
 ---
 
-
+- name: Update the hostname
+  command: "hostnamectl set-hostname {{ inventory_hostname }}"
+  changed_when: false
+  
 - name: Remove epel-release
   yum:
     name: epel-release

@@ -139,6 +139,68 @@
       #     path: "{{ base_directory }}"
       #     state: absent
 
+- name: subscribe the instances to 
+  hosts: tower_ui
+  become: true
+  vars:
+    rhel_username: skrutsinger
+    rhel_password: K3l4ndra1t01!
+    rh_pool_ids:
+      - 8a85f99b6e417e2e016e6f0478444048
+    rh_repos:
+      - rhel-7-server-extras-rpms
+
+  - name: Check for RedHat host
+    fail:
+      msg: "This role is only supported for Red Hat hosts"
+    when: ansible_os_family != 'RedHat'
+
+  - name: Check for rhel_username
+    fail:
+      msg: rhel_username env variable is required for this role.
+    when: rhel_username is not defined
+
+  - name: Check for rhel_password
+    fail:
+      msg: rhel_password env variable is required for this role.
+    when: rhel_password is not defined
+
+  - name: Install Red Hat Subscription manager
+    package:
+      name: subscription-manager
+      state: present
+    when: ansible_distribution == 'CentOS'
+
+  - name: Unregister
+    command: subscription-manager unregister
+    ignore_errors: true
+    changed_when: false
+
+  - name: Register RedHat Subscriptions
+    redhat_subscription:
+      state: present
+      username: "{{ rhel_username }}"
+      password: "{{ rhel_password }}"
+
+  - name: Subscribe Pools
+    command: "subscription-manager subscribe --pool {{ item }}"
+    with_items: "{{ rh_pool_ids }}"
+    retries: 3
+    delay: 2
+    register: result
+    ignore_errors: true
+    until: result is  succeeded
+    when: rh_pool_ids is defined
+
+  - name: Enable RedHat Repos
+    command: subscription-manager repos --enable {{ item }}
+    with_items: "{{ rh_repos }}"
+    retries: 3
+    delay: 2
+    register: result
+    until: result is succeeded
+    when: rh_repos is defined
+
 - name: Run the ansible playbook to provision instances
   hosts: all
   become: true
