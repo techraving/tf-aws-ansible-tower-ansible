@@ -15,11 +15,10 @@
     user: 'admin'
     password: "K3l4ndr41t01!"
     force_basic_auth: yes
+    dest: ~/epel-release-latest-7.noarch.rpm
   when:
     - ansible_os_family == 'RedHat'
     - ansible_distribution != 'RedHat'
-  args:
-    chdir: "~/"
 
 - name: Install epel-release rpm
   yum:
