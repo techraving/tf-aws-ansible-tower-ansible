@@ -80,6 +80,7 @@
     state: latest
   vars:
     packages: 
+      - epel-release
       - wget
       - vim
       - screen
