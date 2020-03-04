@@ -139,18 +139,20 @@
       #     path: "{{ base_directory }}"
       #     state: absent
 
-# - name: subscribe the instances to 
-#   hosts: tower_ui
-#   become: true
-#   vars:
-#     rhel_username: skrutsinger
-#     rhel_password: D4rkn3ss1t01!
-#     rh_pool_ids:
-#       - 8a85f99b6e417e2e016e6f0478444048
-#     rh_repos:
-#       - rhel-7-server-extras-rpms
+- name: subscribe the instances to 
+  hosts: tower_ui
+  become: true
+  vars:
+    rhel_username: skrutsinger
+    rhel_password: D4rkn3ss1t01!
+    rh_pool_ids:
+      - 8a85f99b6e417e2e016e6f0478444048
+    rh_repos:
+      - rhel-7-server-extras-rpms
+      - rhel-7-server-ansible-2.7-rpms
 
-#   tasks:
+
+  tasks:
 #   - name: Check for RedHat host
 #     fail:
 #       msg: "This role is only supported for Red Hat hosts"
@@ -193,14 +195,14 @@
 #     until: result is  succeeded
 #     when: rh_pool_ids is defined
 
-#   - name: Enable RedHat Repos
-#     command: subscription-manager repos --enable {{ item }}
-#     with_items: "{{ rh_repos }}"
-#     retries: 3
-#     delay: 2
-#     register: result
-#     until: result is succeeded
-#     when: rh_repos is defined
+  - name: Enable RedHat Repos
+    command: subscription-manager repos --enable {{ item }}
+    with_items: "{{ rh_repos }}"
+    retries: 3
+    delay: 2
+    register: result
+    until: result is succeeded
+    when: rh_repos is defined
 
 # - name: Run the ansible playbook to provision instances
 #   hosts: all
