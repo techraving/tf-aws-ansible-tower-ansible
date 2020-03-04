@@ -243,10 +243,11 @@
   become: true
 
   tasks:
-    - name: Deploy id_rsa files
-      command: cat /root/.ssh/id_rsa.pub > /root/.ssh/authorized_keys
-      changed_when: false
-      become_user: root
+    - name: Copy file with owner and permissions
+      copy:
+        src: /root/.ssh/id_rsa.pub
+        dest: /root/.ssh/authorized_keys
+        mode: '0600'
 
 - name: Install Ansible Tower
   hosts: tower_ui[0]
