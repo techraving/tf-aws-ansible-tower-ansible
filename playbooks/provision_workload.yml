@@ -244,7 +244,7 @@
 
   tasks:
     - name: Deploy id_rsa files
-      command: "cat /root/.ssh/id_rsa.pub > /root/.ssh/authorized_keys"
+      command: cat /root/.ssh/id_rsa.pub > /root/.ssh/authorized_keys
       changed_when: false
       become_user: root
 
