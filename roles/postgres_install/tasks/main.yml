@@ -1,4 +1,15 @@
 ---
+- name: install basic packages
+  yum:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+      - python-pip
+
+- name: Update python-pip
+  command: pip install --upgrade pip
+  changed_when: false
 
 - name: Update firewalld
   firewalld:

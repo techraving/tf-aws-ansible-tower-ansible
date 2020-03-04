@@ -86,8 +86,3 @@
       - bash-completion
       - firewalld
       - unzip
-      - python-pip
-
-- name: Update python-pip
-  command: pip install --upgrade pip
-  changed_when: false
