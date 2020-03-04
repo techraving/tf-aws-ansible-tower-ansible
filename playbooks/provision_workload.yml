@@ -10,16 +10,16 @@
     ssh_user: ansible
 
   tasks:
-  - name: Create the destination base_directory
-    file:
-      path: "{{ base_directory }}"
-      state: directory 
+  # - name: Create the destination base_directory
+  #   file:
+  #     path: "{{ base_directory }}"
+  #     state: directory 
 
-  - name: Download the terraform config from git
-    git:
-      repo: "{{ repository_url }}"
-      dest: "{{ base_directory }}"
-      version: "{{ version }}"
+  # - name: Download the terraform config from git
+  #   git:
+  #     repo: "{{ repository_url }}"
+  #     dest: "{{ base_directory }}"
+  #     version: "{{ version }}"
       
   - name: Run the Terraform plans
     block:
