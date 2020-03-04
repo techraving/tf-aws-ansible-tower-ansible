@@ -40,13 +40,13 @@
 #     - ansible_os_family == 'RedHat'
 #     - ansible_distribution != 'RedHat'
 
-# - name: Install epel-release package
-#   yum:
-#     name: epel-release
-#     state: latest
-#   when:
-#     - ansible_os_family == 'RedHat'
-#     - ansible_distribution != 'RedHat'
+- name: Install epel-release package
+  yum:
+    name: epel-release
+    state: latest
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution != 'RedHat'
 
 # - name: Update kernel
 #   yum:
@@ -79,8 +79,7 @@
     name: "{{ packages }}"
     state: latest
   vars:
-    packages: 
-      - epel-release
+    packages:
       - wget
       - vim
       - screen
