@@ -24,19 +24,14 @@ WRITABLE_CHECK="SHOW transaction_read_only"
 return_ok()
 {
     echo -e "HTTP/1.1 200 OK\r\n"
-    echo -e "Content-Type: text/html\r\n"
+    echo -e "Content-Type: text/plain\r\n"
+    echo -e "\r\n"
     if [ "$1x" == "masterx" ]; then
-        echo -e "Content-Length: 56\r\n"
-        echo -e "\r\n"
-        echo -e "<html><body>PostgreSQL master is running.</body></html>\r\n"
+        echo "PostgreSQL master is running."
     elif [ "$1x" == "slavex" ]; then
-        echo -e "Content-Length: 55\r\n"
-        echo -e "\r\n"
-        echo -e "<html><body>PostgreSQL slave is running.</body></html>\r\n"
+        echo "PostgreSQL slave is running."
     else
-        echo -e "Content-Length: 49\r\n"
-        echo -e "\r\n"
-        echo -e "<html><body>PostgreSQL is running.</body></html>\r\n"
+        echo "PostgreSQL is running."
     fi
     echo -e "\r\n"
  
@@ -48,10 +43,9 @@ return_ok()
 return_fail()
 {
     echo -e "HTTP/1.1 503 Service Unavailable\r\n"
-    echo -e "Content-Type: text/html\r\n"
-    echo -e "Content-Length: 48\r\n"
+    echo -e "Content-Type: text/plain\r\n"
     echo -e "\r\n"
-    echo -e "<html><body>PostgreSQL is *down*.</body></html>\r\n"
+    echo "PostgreSQL is *down*."
     echo -e "\r\n"
  
     unset PGUSER

@@ -1,8 +1,8 @@
 ---
 
-- name: Update the hostname
-  command: "hostnamectl set-hostname {{ inventory_hostname }}"
-  changed_when: false
+# - name: Update the hostname
+#   command: "hostnamectl set-hostname {{ inventory_hostname }}"
+#   changed_when: false
 
 # - name: Remove epel-release
 #   yum:
@@ -40,14 +40,6 @@
 #     - ansible_os_family == 'RedHat'
 #     - ansible_distribution != 'RedHat'
 
-- name: Install epel-release package
-  yum:
-    name: epel-release
-    state: latest
-  when:
-    - ansible_os_family == 'RedHat'
-    - ansible_distribution != 'RedHat'
-
 - name: Update kernel
   yum:
     name: kernel
@@ -67,6 +59,14 @@
   become: false
   when:
     - kernel_changed.changed
+
+- name: Install epel-release package
+  yum:
+    name: epel-release
+    state: latest
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution != 'RedHat'
 
 - name: Update all packages
   yum:

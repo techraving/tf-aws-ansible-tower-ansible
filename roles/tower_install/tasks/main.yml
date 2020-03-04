@@ -1,10 +1,5 @@
 ---
 
-- name: Update Ansible
-  yum:
-    name: ansible
-    state: latest
-
 - name: Download tower
   get_url:
     url: "http://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-{{ ansibletower.version }}.tar.gz"

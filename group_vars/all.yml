@@ -2,4 +2,7 @@ postgresql_username: 'ansible_tower'
 postgresql_password: 'Redhat@2019!'
 postgresql_database: 'tower'
 postgresql_root_password: 'smartvm'
+postgresql_port: 5432
 ansible_ssh_user: ansible
+
+xinetd_port: 9201

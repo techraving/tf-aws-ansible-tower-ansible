@@ -17,6 +17,19 @@
     permanent: yes
     state: enabled
 
+- name: Update firewalld
+  firewalld:
+    port: "{{ xinetd_port }}/tcp"
+    permanent: yes
+    state: enabled
+
+- name: Allow xinetd to listen on tcp port {{ xinetd_port }}
+  seport:
+    ports: "{{ xinetd_port }}"
+    proto: tcp
+    setype: http_port_t
+    state: present
+
 - name: Define var postgresql_version_no_dots. e.g. if 9.6 >> 96
   set_fact:
     postgresql_version_no_dots: "{{ postgresql_version | regex_replace('\\.') }}"
@@ -64,8 +77,8 @@
 - name: Update the port to listen on
   lineinfile:
     path: "{{ postgresql_data_path }}/postgresql.conf"
-    regex: "^#port = 5432"
-    insertafter: '^#port = 5432'
+    regex: "^#port = {{ postgresql_port|default(5432) }}"
+    insertafter: "^#port = {{ postgresql_port|default(5432) }}"
     line: "port = {{ postgresql_port|default(5432) }}"
   when:
     - postgresql_port is defined
@@ -118,7 +131,7 @@
 - name: Install xinetd
   yum:
     name: xinetd
-    state: present
+    state: latest
   when:
     - groups['tower_db_haproxy']|length > 0
 
@@ -126,23 +139,23 @@
   template:
     src:  postgreschk.j2
     dest: /usr/local/sbin/postgreschk
-    mode: 0655
+    mode: 0755
   when:
     - groups['tower_db_haproxy']|length > 0
 
 - name: Install the postgreschk service
-  copy:
-    src: postgreschk
+  template:
+    src: postgreschk_service.j2
     dest: /etc/xinetd.d/postgreschk
-    mode: 0644
+    mode: 0744
   when:
     - groups['tower_db_haproxy']|length > 0
 
 - name: Add the /etc/services line entry
   lineinfile:
     path: /etc/services
-    regexp: 'postgreschk        9201/tcp'
-    line: 'postgreschk        9201/tcp'
+    regexp: "postgreschk        {{ xinetd_port }}/tcp"
+    line: "postgreschk        {{ xinetd_port }}/tcp"
   when:
     - groups['tower_db_haproxy']|length > 0
 

@@ -1,9 +1,25 @@
 ---
 
-- name: Remove firewalld
-  yum:
-    name: firewalld
-    state: absent
+- name: Update firewalld
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: yes
+    state: enabled
+  with_items:
+    - 4369
+    - 25672
+    - 15672
+
+- name: Allow xinetd to listen on tcp port
+  seport:
+    ports: "{{ item }}"
+    proto: tcp
+    setype: http_port_t
+    state: present
+  with_items:
+    - 4369
+    - 25672
+    - 15672
 
 - name: Install ansible
   yum:

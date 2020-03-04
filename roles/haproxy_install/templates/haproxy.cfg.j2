@@ -22,21 +22,19 @@ defaults
     log                     global
     option                  httplog
     option                  dontlognull
-#    option http-server-close
-    option forwardfor       except 127.0.0.0/8
     option                  redispatch
     retries                 3
     timeout http-request    10s
     timeout queue           1m
     timeout connect         10s
-    timeout client          300s
-    timeout server          300s
+    timeout client          1m
+    timeout server          1m
     timeout http-keep-alive 10s
     timeout check           10s
-    maxconn                 20000
+    maxconn                 5000
 
 listen stats
-    bind :9000
+    bind *:8404
     mode http
     stats enable
     stats uri /
@@ -51,6 +49,6 @@ backend http-vault-backend
     balance source
     mode tcp
     option httpchk HEAD /v1/sys/health
-{% for host in groups['vault_nodes'] %}
-    server      master{{ loop.index }} {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}:8200 check
+{% for host in groups['tower_ui'] %}
+    server      master{{ loop.index }} {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}:80 check
 {% endfor %}

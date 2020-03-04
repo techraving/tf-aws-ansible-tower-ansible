@@ -74,12 +74,12 @@ listen  haproxy_postgres_{{ port }}
     balance leastconn
     option tcp-check
     option allbackups
-    default-server port 9201 inter 2s downinter 5s rise 3 fall 2 slowstart 60s maxconn 1000 maxqueue 1000 weight 100
+    default-server port {{ xinetd_port }} inter 2s downinter 5s rise 3 fall 2 slowstart 60s maxconn 1000 maxqueue 1000 weight 100
 {% for group in groups['tower_db'] %}
-    server {{ group|replace('.','_',4) }} {{ group }}:5432 check
+    server {{ group|replace('.','_',4) }} {{ group }}:{{ postgresql_port }} check
 {% endfor %}
 {% for group in groups['tower_db_replicas'] %}
-    server {{ group|replace('.','_',4) }} {{ group }}:5432 check
+    server {{ group|replace('.','_',4) }} {{ group }}:{{ postgresql_port }} check
 {% endfor %}
 
 {% endfor %}
