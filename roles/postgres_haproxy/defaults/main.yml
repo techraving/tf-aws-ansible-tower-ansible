@@ -1,2 +1,3 @@
 ---
-# defaults file for postgres_haproxy
+postgresql_port: 5432
+xinetd_port: 9201

@@ -12,3 +12,5 @@ postgresql_packages:
   - "postgresql{{ postgresql_version_no_dots }}-server"
   - "postgresql{{ postgresql_version_no_dots }}-contrib"
   - "postgresql{{ postgresql_version_no_dots }}-libs"
+
+xinetd_port: 9201
