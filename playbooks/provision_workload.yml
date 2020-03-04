@@ -30,76 +30,76 @@
       #     force_init: true
       #     variables_file: "{{ base_directory }}/aws_vars.tfvars"
 
-      # - name: Get status from Terraform
-      #   command: terraform show -json
-      #   register: terraform_result
-      #   args:
-      #     chdir: "{{ base_directory }}"
+      - name: Get status from Terraform
+        command: terraform show -json
+        register: terraform_result
+        args:
+          chdir: "{{ base_directory }}"
 
-      # - name: Add to tower_ui_haproxy node groups
-      #   add_host:
-      #     hostname: "{{ item }}"
-      #     groups: 
-      #       - tower_ui_haproxy
-      #     ansible_user: "{{ ssh_user }}"
-      #     ports:
-      #       - 80
-      #       - 443
-      #   loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui_haproxy') | list }}"
+      - name: Add to tower_ui_haproxy node groups
+        add_host:
+          hostname: "{{ item }}"
+          groups: 
+            - tower_ui_haproxy
+          ansible_user: "{{ ssh_user }}"
+          ports:
+            - 80
+            - 443
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui_haproxy') | list }}"
 
-      # - name: Add to tower_ui node groups
-      #   add_host:
-      #     hostname: "{{ item }}"
-      #     groups: 
-      #       - tower_ui
-      #     ansible_user: "{{ ssh_user }}"
-      #     postgresql_username: 'ansible_tower'
-      #     postgresql_password: 'Redhat@2019!'
-      #     postgresql_database: 'tower'
-      #     postgresql_root_password: 'smartvm'
-      #     ports:
-      #       - 80
-      #       - 443
-      #   loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui') | list }}"
+      - name: Add to tower_ui node groups
+        add_host:
+          hostname: "{{ item }}"
+          groups: 
+            - tower_ui
+          ansible_user: "{{ ssh_user }}"
+          postgresql_username: 'ansible_tower'
+          postgresql_password: 'Redhat@2019!'
+          postgresql_database: 'tower'
+          postgresql_root_password: 'smartvm'
+          ports:
+            - 80
+            - 443
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_ui') | list }}"
 
-      # - name: Add to tower_db_haproxy node groups
-      #   add_host:
-      #     hostname: "{{ item }}"
-      #     groups: 
-      #       - tower_db_haproxy
-      #     ansible_user: "{{ ssh_user }}"
-      #     ports:
-      #       - 5432
-      #   loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db_haproxy') | list }}"
+      - name: Add to tower_db_haproxy node groups
+        add_host:
+          hostname: "{{ item }}"
+          groups: 
+            - tower_db_haproxy
+          ansible_user: "{{ ssh_user }}"
+          ports:
+            - 5432
+        loop: "{{ terraform_result['stdout'] | get_group_instances('tower_db_haproxy') | list }}"
 
-      # - name: Add to tower_db node groups
-      #   add_host:
-      #     hostname: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[0] }}"
-      #     groups: 
-      #       - tower_db
-      #     ansible_user: "{{ ssh_user }}"
-      #     ports:
-      #       - 5432
-      #     pgsqlrep_role: master
-      #     postgresql_username: 'ansible_tower'
-      #     postgresql_password: 'Redhat@2019!'
-      #     postgresql_database: 'tower'
-      #     postgresql_root_password: 'smartvm'
+      - name: Add to tower_db node groups
+        add_host:
+          hostname: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[0] }}"
+          groups: 
+            - tower_db
+          ansible_user: "{{ ssh_user }}"
+          ports:
+            - 5432
+          pgsqlrep_role: master
+          postgresql_username: 'ansible_tower'
+          postgresql_password: 'Redhat@2019!'
+          postgresql_database: 'tower'
+          postgresql_root_password: 'smartvm'
 
-      # - name: Add to tower_db_replicas node groups
-      #   add_host:
-      #     hostname: "{{ item }}"
-      #     groups: 
-      #       - tower_db_replicas
-      #     ansible_user: "{{ ssh_user }}"
-      #     ports:
-      #       - 5432
-      #     pgsqlrep_role: replica
-      #     postgresql_username: 'ansible_tower'
-      #     postgresql_password: 'Redhat@2019!'
-      #     postgresql_database: 'tower'
-      #     postgresql_root_password: 'smartvm'
-      #   loop: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[1:] | list }}"
+      - name: Add to tower_db_replicas node groups
+        add_host:
+          hostname: "{{ item }}"
+          groups: 
+            - tower_db_replicas
+          ansible_user: "{{ ssh_user }}"
+          ports:
+            - 5432
+          pgsqlrep_role: replica
+          postgresql_username: 'ansible_tower'
+          postgresql_password: 'Redhat@2019!'
+          postgresql_database: 'tower'
+          postgresql_root_password: 'smartvm'
+        loop: "{{ (terraform_result['stdout'] | get_group_instances('tower_db') | list)[1:] | list }}"
 
       # - name: waiting for tower_ui_haproxy servers to come back
       #   local_action: wait_for host={{ item }} port=22 state=started delay=30 timeout=240
